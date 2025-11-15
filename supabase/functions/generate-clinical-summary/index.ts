@@ -7,6 +7,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to convert ArrayBuffer to base64 safely (handles large files)
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000; // 32KB chunks to avoid call stack overflow
+  let binary = '';
+  
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+    binary += String.fromCharCode(...chunk);
+  }
+  
+  return btoa(binary);
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -53,7 +67,7 @@ serve(async (req) => {
       console.log(`Uploading file to Gemini: ${file.name} (${file.size} bytes)`);
       
       const arrayBuffer = await file.arrayBuffer();
-      const base64Data = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const base64Data = arrayBufferToBase64(arrayBuffer);
       
       // Step 1: Initiate file upload to Gemini
       const uploadInitResponse = await fetch(
@@ -309,8 +323,7 @@ Règles :
 
       if (audioResponse.ok) {
         const audioArrayBuffer = await audioResponse.arrayBuffer();
-        const audioBytes = new Uint8Array(audioArrayBuffer);
-        audioBriefBase64 = btoa(String.fromCharCode(...audioBytes));
+        audioBriefBase64 = arrayBufferToBase64(audioArrayBuffer);
         console.log('Audio brief generated successfully');
       } else {
         console.error('ElevenLabs API error:', await audioResponse.text());
