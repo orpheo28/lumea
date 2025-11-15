@@ -22,21 +22,28 @@ export const useClinicalSummary = () => {
         formData.append('files', file);
       });
 
-      // Call edge function
-      const { data, error: functionError } = await supabase.functions.invoke(
-        'generate-clinical-summary',
-        {
-          body: formData,
-        }
-      );
-
-      if (functionError) {
-        throw new Error(functionError.message);
+    // Call edge function with fetch (FormData-compatible)
+    const response = await fetch(
+      'https://qupgqkvsrzpjgmycoliu.supabase.co/functions/v1/generate-clinical-summary',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: formData,
       }
+    );
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to generate summary');
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to generate summary');
+    }
 
       const endTime = performance.now();
       const generationTime = Math.round(endTime - startTime);
