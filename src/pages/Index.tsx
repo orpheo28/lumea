@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, MessageSquare, Calendar, Mail, Users, Sparkles } from 'lucide-react';
+import { FileText, MessageSquare, Calendar, Users, Sparkles } from 'lucide-react';
 import { HeroSection } from '@/components/HeroSection';
 import { PatientForm } from '@/components/PatientForm';
 import { UploadSection } from '@/components/UploadSection';
@@ -11,7 +11,7 @@ import { DocumentChat } from '@/components/DocumentChat';
 import { LoaderOverlay } from '@/components/LoaderOverlay';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { MedicalTimeline } from '@/components/MedicalTimeline';
-import { MedicalLetters } from '@/components/MedicalLetters';
+
 import { useClinicalSummary } from '@/hooks/useClinicalSummary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -131,7 +131,7 @@ const Index = () => {
 
             {summary && showDetails && (
               <Tabs defaultValue="summary" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="summary" className="flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Résumé
@@ -139,10 +139,6 @@ const Index = () => {
                   <TabsTrigger value="timeline" className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     Timeline
-                  </TabsTrigger>
-                  <TabsTrigger value="letters" className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Courriers
                   </TabsTrigger>
                   <TabsTrigger value="chat" className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
@@ -158,9 +154,6 @@ const Index = () => {
                   <MedicalTimeline summaryId={summary.id} />
                 </TabsContent>
 
-                <TabsContent value="letters" className="mt-4">
-                  <MedicalLetters summaryId={summary.id} />
-                </TabsContent>
                 
                 <TabsContent value="chat" className="mt-4">
                   <DocumentChat summaryId={summary.id} patientName={summary.patient_name} />
