@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.chat-with-documents]
 verify_jwt = false
+
+[functions.generate-medical-letter]
+verify_jwt = false

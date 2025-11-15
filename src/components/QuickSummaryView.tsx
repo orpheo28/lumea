@@ -1,6 +1,7 @@
-import { AlertCircle, AlertTriangle, Clock } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Clock, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ClinicalSummary } from '@/types/clinical';
+import { AudioPlayer } from '@/components/AudioPlayer';
 
 interface QuickSummaryViewProps {
   summary: ClinicalSummary;
@@ -32,6 +33,24 @@ export const QuickSummaryView = ({ summary, onShowDetails }: QuickSummaryViewPro
         {/* Quick Resume */}
         <div className="bg-card/50 rounded-lg p-3 border border-border">
           <p className="text-sm leading-relaxed">{quickResume}</p>
+        </div>
+
+        {/* Audio Brief */}
+        {summary.audio_brief_base64 && (
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Volume2 className="w-4 h-4 text-primary" />
+              <h3 className="font-semibold text-sm">Brief Audio (20s)</h3>
+            </div>
+            <AudioPlayer audioBase64={summary.audio_brief_base64} />
+          </div>
+        )}
+
+        {/* Time Saved Counter */}
+        <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-lg p-2 text-center">
+          <p className="text-xs text-green-900 dark:text-green-200">
+            ⏱️ ~15 minutes économisées sur ce dossier
+          </p>
         </div>
 
         {/* Red Flags & Vigilance in 2 columns */}

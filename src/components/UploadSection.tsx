@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FileText, X, Upload } from 'lucide-react';
+import { FileText, X, Upload, FileImage } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface UploadSectionProps {
@@ -25,10 +25,10 @@ export const UploadSection = ({
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       const droppedFiles = Array.from(e.dataTransfer.files).filter(
-        (file) => file.type === 'application/pdf'
+        (file) => file.type === 'application/pdf' || file.type.startsWith('image/')
       );
       if (droppedFiles.length > 0) {
-        onFilesChange([...files, ...droppedFiles].slice(0, 3));
+        onFilesChange([...files, ...droppedFiles].slice(0, 5));
       }
     },
     [files, onFilesChange]
@@ -38,9 +38,9 @@ export const UploadSection = ({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
         const selectedFiles = Array.from(e.target.files).filter(
-          (file) => file.type === 'application/pdf'
+          (file) => file.type === 'application/pdf' || file.type.startsWith('image/')
         );
-        onFilesChange([...files, ...selectedFiles].slice(0, 3));
+        onFilesChange([...files, ...selectedFiles].slice(0, 5));
       }
     },
     [files, onFilesChange]
@@ -68,15 +68,15 @@ export const UploadSection = ({
         >
           <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <p className="text-base font-medium mb-2">
-            Glissez-déposez jusqu'à 3 comptes-rendus / bilans en PDF
+            Glissez-déposez jusqu'à 5 documents (PDF ou images)
           </p>
           <p className="text-sm text-muted-foreground">
-            Ou cliquez pour parcourir vos fichiers
+            Comptes-rendus, bilans, IRM, radios, scanners...
           </p>
           <input
             id="file-input"
             type="file"
-            accept="application/pdf"
+            accept="application/pdf,image/*"
             multiple
             onChange={handleFileInput}
             className="hidden"
@@ -89,14 +89,20 @@ export const UploadSection = ({
             {files.map((file, index) => (
               <Card key={index} className="p-3 flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+                  {file.type.startsWith('image/') ? (
+                    <FileImage className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                  ) : (
+                    <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{file.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {(file.size / 1024).toFixed(1)} KB
                     </p>
                   </div>
-                  <Badge variant="secondary" className="flex-shrink-0">PDF</Badge>
+                  <Badge variant="secondary" className="flex-shrink-0">
+                    {file.type.startsWith('image/') ? 'IMAGE' : 'PDF'}
+                  </Badge>
                 </div>
                 <Button
                   variant="ghost"
