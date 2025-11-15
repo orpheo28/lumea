@@ -2,3 +2,6 @@ project_id = "qupgqkvsrzpjgmycoliu"
 
 [functions.generate-clinical-summary]
 verify_jwt = false
+
+[functions.chat-with-documents]
+verify_jwt = false
