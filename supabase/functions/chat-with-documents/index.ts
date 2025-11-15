@@ -68,12 +68,12 @@ serve(async (req) => {
       body: JSON.stringify({
         systemInstruction: {
           parts: [{
-            text: `Tu es un assistant médical pour le dossier du patient ${summary.patient_name}.
-Tu as accès à tous les documents médicaux uploadés.
-Réponds de manière précise, factuelle, et cite les documents si pertinent.
-NE PROPOSE PAS de diagnostic ni de traitement.
-Reste dans le rôle d'assistant de documentation médical.
-Réponds en français.`
+            text: `You are a medical assistant for patient ${summary.patient_name}'s file.
+You have access to all uploaded medical documents.
+Answer precisely, factually, and cite documents when relevant.
+DO NOT propose diagnosis or treatment.
+Stay in the role of medical documentation assistant.
+Respond in English.`
           }]
         },
         contents: [
@@ -101,7 +101,7 @@ Réponds en français.`
     }
 
     const geminiResponse = await response.json();
-    const assistantMessage = geminiResponse.candidates?.[0]?.content?.parts?.[0]?.text || 'Désolé, je n\'ai pas pu générer de réponse.';
+    const assistantMessage = geminiResponse.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
 
     console.log('Chat response generated successfully');
 

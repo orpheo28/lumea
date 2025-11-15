@@ -158,92 +158,92 @@ serve(async (req) => {
     }
 
     // Generate clinical summary with Gemini API using File URIs
-    const prompt = `Tu es un assistant pour médecins généralistes.
-Tu analyses des documents patients (comptes rendus, bilans, examens, imagerie médicale, etc.).
+    const prompt = `You are an assistant for general practitioners.
+You analyze patient documents (reports, assessments, examinations, medical imaging, etc.).
 
-**ANALYSE D'IMAGES MÉDICALES** :
-Si des fichiers d'imagerie sont fournis (radiographies, IRM, scanners, échographies...) :
-1. Décris objectivement les structures anatomiques visibles
-2. Note toute anomalie visible (masses, opacités, fractures, lésions...)
-3. NE POSE PAS DE DIAGNOSTIC - reste factuel et descriptif
-4. Recommande une interprétation par radiologue si pertinent
+**MEDICAL IMAGING ANALYSIS**:
+If imaging files are provided (X-rays, MRI, CT scans, ultrasounds...):
+1. Objectively describe visible anatomical structures
+2. Note any visible abnormalities (masses, opacities, fractures, lesions...)
+3. DO NOT DIAGNOSE - remain factual and descriptive
+4. Recommend radiologist interpretation if relevant
 
-Format pour les images :
-"Sur l'image [type] :
-- Structures identifiées : [liste]
-- Observations : [description factuelle]
-- Recommandation : Lecture spécialisée recommandée"
+Format for images:
+"On the [type] image:
+- Identified structures: [list]
+- Observations: [factual description]
+- Recommendation: Specialized reading recommended"
 
-À partir de TOUS les documents fournis, génère STRICTEMENT un JSON valide de la forme :
+From ALL provided documents, generate STRICTLY a valid JSON in this format:
 
 {
-  "resume_clinique": "Résumé global en quelques phrases, factuel (inclut les observations d'imagerie si présentes)",
+  "resume_clinique": "Global summary in a few sentences, factual (includes imaging observations if present)",
   "points_de_vigilance": ["point 1", "point 2", "..."],
-  "comparaison_historique": "Ce qui a changé par rapport aux examens précédents si possible",
-  "red_flags": ["élément potentiellement inquiétant 1", "..."],
-  "note_medicale_brute": "Note clinique brute au format SOAP (SUBJECTIF, OBJECTIF, EVALUATION, PLAN)",
-  "a_expliquer_au_patient": "Formulation simple à expliquer au patient, en langage accessible",
+  "comparaison_historique": "What has changed compared to previous examinations if possible",
+  "red_flags": ["potentially concerning element 1", "..."],
+  "note_medicale_brute": "Raw clinical note in SOAP format (SUBJECTIVE, OBJECTIVE, ASSESSMENT, PLAN)",
+  "a_expliquer_au_patient": "Simple formulation to explain to the patient, in accessible language",
   "timeline_events": [
     {
       "event_date": "2024-03-15T10:30:00Z",
-      "event_type": "examen | consultation | hospitalisation | traitement | diagnostic | imagerie",
-      "description": "Description de l'événement",
-      "document_source": "nom_du_fichier.pdf"
+      "event_type": "examination | consultation | hospitalization | treatment | diagnosis | imaging",
+      "description": "Event description",
+      "document_source": "filename.pdf"
     }
   ],
   "inconsistencies": [
     {
       "type": "biological | treatment | missing_info | temporal",
       "severity": "low | medium | high",
-      "description": "Description courte (1 phrase)",
-      "details": "Explication détaillée avec les valeurs/dates concernées"
+      "description": "Short description (1 sentence)",
+      "details": "Detailed explanation with relevant values/dates"
     }
   ]
 }
 
-EXTRACTION DE LA TIMELINE :
-Pour chaque document, identifie tous les événements médicaux avec leur date :
-- Les dates d'examens (biologie, imagerie, ECG, etc.)
-- Les dates de consultation
-- Les dates d'hospitalisation
-- Les dates de changement de traitement
-- Les dates de diagnostic
+TIMELINE EXTRACTION:
+For each document, identify all medical events with their date:
+- Examination dates (biology, imaging, ECG, etc.)
+- Consultation dates
+- Hospitalization dates
+- Treatment change dates
+- Diagnosis dates
 
-Trie les événements par ordre chronologique décroissant (plus récent en premier).
+Sort events in descending chronological order (most recent first).
 
-DÉTECTION D'INCOHÉRENCES CRITIQUES :
-Analyse les documents pour détecter :
+CRITICAL INCONSISTENCY DETECTION:
+Analyze documents to detect:
 
-1. **Incohérences biologiques** :
-   - Valeurs contradictoires entre examens
-   - Évolution anormale sans explication
-   - Résultats impossibles physiologiquement
+1. **Biological inconsistencies**:
+   - Contradictory values between examinations
+   - Abnormal evolution without explanation
+   - Physiologically impossible results
 
-2. **Incohérences de traitement** :
-   - Médicaments contre-indiqués ensemble
-   - Dosages incohérents avec la fonction rénale/hépatique
-   - Arrêt brutal de traitement chronique sans mention
+2. **Treatment inconsistencies**:
+   - Contraindicated medications together
+   - Dosages inconsistent with renal/hepatic function
+   - Abrupt discontinuation of chronic treatment without mention
 
-3. **Informations manquantes critiques** :
-   - Résultat annoncé mais absent des documents
-   - Suivi manquant après anomalie détectée
-   - Examens complémentaires recommandés non réalisés
+3. **Critical missing information**:
+   - Announced result but absent from documents
+   - Missing follow-up after detected abnormality
+   - Recommended additional examinations not performed
 
-4. **Incohérences temporelles** :
-   - Dates incohérentes
-   - Chronologie impossible
+4. **Temporal inconsistencies**:
+   - Inconsistent dates
+   - Impossible chronology
 
-N'ajoute que les incohérences RÉELLES et VÉRIFIABLES.
-Évite les faux positifs - mieux vaut rien signaler que signaler à tort.
+Only add REAL and VERIFIABLE inconsistencies.
+Avoid false positives - better to report nothing than to report incorrectly.
 
-Règles :
-- NE PROPOSE PAS de diagnostic explicite.
-- NE PROPOSE PAS de traitement ni de prescription.
-- Reste factuel, basé sur les documents.
-- Si une information n'est pas disponible dans les documents, dis-le clairement.
-- Réponds en français.
-- Le JSON doit être PARSABLE sans erreur.
-- Ne mets PAS le JSON dans un bloc de code markdown, renvoie uniquement le JSON brut.`;
+Rules:
+- DO NOT propose explicit diagnosis.
+- DO NOT propose treatment or prescription.
+- Remain factual, based on documents.
+- If information is not available in documents, state it clearly.
+- Respond in English.
+- JSON must be PARSABLE without error.
+- Do NOT put JSON in a markdown code block, return only raw JSON.`;
 
     const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
     
