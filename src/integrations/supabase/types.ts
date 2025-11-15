@@ -24,6 +24,7 @@ export type Database = {
           gemini_file_uris: Json | null
           generation_time_ms: number | null
           id: string
+          inconsistencies: Json | null
           note_medicale_brute: string | null
           patient_name: string
           points_de_vigilance: Json
@@ -40,6 +41,7 @@ export type Database = {
           gemini_file_uris?: Json | null
           generation_time_ms?: number | null
           id?: string
+          inconsistencies?: Json | null
           note_medicale_brute?: string | null
           patient_name: string
           points_de_vigilance?: Json
@@ -56,6 +58,7 @@ export type Database = {
           gemini_file_uris?: Json | null
           generation_time_ms?: number | null
           id?: string
+          inconsistencies?: Json | null
           note_medicale_brute?: string | null
           patient_name?: string
           points_de_vigilance?: Json
@@ -64,6 +67,44 @@ export type Database = {
           resume_clinique?: string | null
         }
         Relationships: []
+      }
+      medical_timeline: {
+        Row: {
+          created_at: string | null
+          description: string
+          document_source: string | null
+          event_date: string
+          event_type: string
+          id: string
+          summary_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          document_source?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          summary_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          document_source?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          summary_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_timeline_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
