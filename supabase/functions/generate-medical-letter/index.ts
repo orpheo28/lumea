@@ -46,72 +46,72 @@ serve(async (req) => {
 
     // Define prompts for each letter type
     const prompts: Record<string, string> = {
-      'courrier_medecin': `Tu es un médecin généraliste qui rédige un courrier pour un confrère spécialiste.
+      'courrier_medecin': `You are a general practitioner writing a letter to a specialist colleague.
 
-À partir du résumé clinique suivant, rédige un courrier médical professionnel et structuré.
+Based on the following clinical summary, write a professional and structured medical letter.
 
-RÉSUMÉ CLINIQUE :
+CLINICAL SUMMARY:
 ${summary.resume_clinique || ''}
 
-POINTS DE VIGILANCE :
+KEY POINTS:
 ${(summary.points_de_vigilance || []).join('\n')}
 
-RED FLAGS :
+RED FLAGS:
 ${(summary.red_flags || []).join('\n')}
 
-NOTE MÉDICALE :
+MEDICAL NOTE:
 ${summary.note_medicale_brute || ''}
 
-CONSIGNES :
-- Format classique de courrier médical (en-tête, objet, développement, formule de politesse)
-- Ton professionnel et concis
-- Mention des éléments cliniques pertinents
-- Demande d'avis ou de prise en charge selon le contexte
-- Maximum 400 mots
+GUIDELINES:
+- Classic medical letter format (header, subject, body, closing)
+- Professional and concise tone
+- Mention relevant clinical elements
+- Request for opinion or management according to context
+- Maximum 300 words
 
-Génère uniquement le corps du courrier (sans les coordonnées, sans la date).`,
+Generate only the body of the letter (without contact details, without date).`,
 
-      'courrier_patient': `Tu es un médecin généraliste qui rédige un courrier explicatif pour un patient.
+      'courrier_patient': `You are a general practitioner writing an explanatory letter for a patient.
 
-À partir du résumé clinique suivant, rédige un courrier accessible et rassurant pour le patient.
+Based on the following clinical summary, write an accessible and reassuring letter for the patient.
 
-RÉSUMÉ CLINIQUE :
+CLINICAL SUMMARY:
 ${summary.resume_clinique || ''}
 
-À EXPLIQUER AU PATIENT :
+TO EXPLAIN TO THE PATIENT:
 ${summary.a_expliquer_au_patient || ''}
 
-CONSIGNES :
-- Langage simple et compréhensible
-- Ton rassurant mais honnête
-- Explication des résultats en termes accessibles
-- Mention des prochaines étapes si nécessaire
-- Encouragement au suivi et à poser des questions
-- Maximum 300 mots
+GUIDELINES:
+- Simple and understandable language
+- Reassuring but honest tone
+- Explain results in accessible terms
+- Mention next steps if necessary
+- Encourage follow-up and asking questions
+- Maximum 250 words
 
-Génère uniquement le corps du courrier.`,
+Generate only the body of the letter.`,
 
-      'compte_rendu': `Tu es un médecin généraliste qui rédige un compte-rendu de consultation.
+      'compte_rendu': `You are a general practitioner writing a consultation report.
 
-À partir du résumé clinique suivant, rédige un compte-rendu structuré.
+Based on the following clinical summary, write a structured report.
 
-RÉSUMÉ CLINIQUE :
+CLINICAL SUMMARY:
 ${summary.resume_clinique || ''}
 
-NOTE MÉDICALE :
+MEDICAL NOTE:
 ${summary.note_medicale_brute || ''}
 
-POINTS DE VIGILANCE :
+KEY POINTS:
 ${(summary.points_de_vigilance || []).join('\n')}
 
-CONSIGNES :
-- Format SOAP (Subjectif, Objectif, Évaluation, Plan)
-- Concis et factuel
-- Mention des examens complémentaires si nécessaire
-- Plan de suivi clair
-- Maximum 400 mots
+GUIDELINES:
+- SOAP format (Subjective, Objective, Assessment, Plan)
+- Concise and factual
+- Mention additional examinations if necessary
+- Clear follow-up plan
+- Maximum 300 words
 
-Génère uniquement le compte-rendu.`
+Generate only the report.`
     };
 
     const selectedPrompt = prompts[letterType];
@@ -119,9 +119,9 @@ Génère uniquement le compte-rendu.`
       throw new Error('Invalid letter type');
     }
 
-    // Call Gemini API
+    // Call Gemini API (using stable gemini-1.5-flash model)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -131,7 +131,9 @@ Génère uniquement le compte-rendu.`
           }],
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 1024,
+            maxOutputTokens: 800,
+            topP: 0.95,
+            topK: 40,
           }
         })
       }
@@ -140,7 +142,20 @@ Génère uniquement le compte-rendu.`
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Gemini API error:', errorText);
-      throw new Error('Failed to generate letter');
+      
+      // Parse error for better error messages
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.error?.code === 429) {
+          throw new Error('API quota exceeded. Please try again in a few moments.');
+        }
+        throw new Error(errorData.error?.message || 'Failed to generate letter');
+      } catch (e) {
+        if (e instanceof Error && e.message.includes('quota')) {
+          throw e;
+        }
+        throw new Error('Failed to generate letter');
+      }
     }
 
     const data = await response.json();
