@@ -99,7 +99,8 @@ serve(async (req) => {
       }
 
       const uploadResult = await uploadContentResponse.json();
-      const fileUri = uploadResult.file.name;
+      const fileUri = uploadResult.file.uri; // Use .uri for generateContent
+      const fileName = uploadResult.file.name; // Use .name for API calls
 
       // Step 3: Wait for file to be ACTIVE
       let fileStatus = uploadResult.file.state;
@@ -110,7 +111,7 @@ serve(async (req) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const statusResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/${fileUri}?key=${GEMINI_API_KEY}`
+          `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${GEMINI_API_KEY}`
         );
         
         if (statusResponse.ok) {
