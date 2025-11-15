@@ -62,7 +62,7 @@ export const AudioPlayer = ({ audioBase64 }: AudioPlayerProps) => {
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <Volume2 className="h-4 w-4 text-primary" />
-            <p className="text-sm font-medium">Brief audio (20 secondes)</p>
+            <p className="text-sm font-medium">Audio Brief (20 seconds)</p>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div

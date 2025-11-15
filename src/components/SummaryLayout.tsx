@@ -31,8 +31,8 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
       navigator.clipboard.writeText(summary.note_medicale_brute);
       setCopied(true);
       toast({
-        title: 'Note copiée',
-        description: 'La note médicale a été copiée dans le presse-papier',
+        title: 'Note copied',
+        description: 'Medical note copied to clipboard',
       });
       setTimeout(() => setCopied(false), 2000);
     }
@@ -42,13 +42,13 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
     const result = await exportToPdf(summary);
     if (result.success) {
       toast({
-        title: 'PDF exporté',
-        description: 'Le brief clinique a été téléchargé avec succès',
+        title: 'PDF exported',
+        description: 'Clinical brief successfully downloaded',
       });
     } else {
       toast({
-        title: 'Erreur',
-        description: "Impossible d'exporter le PDF",
+        title: 'Error',
+        description: "Unable to export PDF",
         variant: 'destructive',
       });
     }
@@ -87,13 +87,13 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
         </div>
       )}
 
-      <SummaryCard title="Résumé clinique" icon={Stethoscope}>
+      <SummaryCard title="Clinical Summary" icon={Stethoscope}>
         <p className="text-sm leading-relaxed">
-          {summary.resume_clinique || 'Aucun résumé disponible.'}
+          {summary.resume_clinique || 'No summary available.'}
         </p>
       </SummaryCard>
 
-      <SummaryCard title="Points de vigilance" icon={AlertTriangle} variant="warning">
+      <SummaryCard title="Key Points" icon={AlertTriangle} variant="warning">
         {summary.points_de_vigilance && summary.points_de_vigilance.length > 0 ? (
           <ul className="space-y-2">
             {summary.points_de_vigilance.map((point, index) => (
@@ -105,7 +105,7 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
           </ul>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Aucun point particulier identifié dans les documents fournis.
+            No specific points identified in provided documents.
           </p>
         )}
       </SummaryCard>
@@ -128,8 +128,7 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Aucun red flag explicite détecté dans les documents. Toujours interpréter dans le
-            contexte clinique.
+            No explicit red flags detected in documents. Always interpret in clinical context.
           </p>
         )}
       </SummaryCard>
@@ -137,7 +136,7 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
       {/* Inconsistencies Section */}
       {summary.inconsistencies && summary.inconsistencies.length > 0 && (
         <SummaryCard 
-          title="🔍 Incohérences détectées" 
+          title="🔍 Detected Inconsistencies" 
           icon={AlertTriangle}
           variant="warning"
         >
@@ -150,9 +149,9 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
               };
               
               const severityLabels = {
-                low: 'Faible',
-                medium: 'Moyenne',
-                high: 'Élevée'
+                low: 'Low',
+                medium: 'Medium',
+                high: 'High'
               };
 
               return (
@@ -168,7 +167,7 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
                           {inc.type.replace('_', ' ')}
                         </span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-background/50">
-                          Sévérité : {severityLabels[inc.severity]}
+                          Severity: {severityLabels[inc.severity]}
                         </span>
                       </div>
                       <p className="text-sm font-medium">{inc.description}</p>
@@ -184,17 +183,17 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
         </SummaryCard>
       )}
 
-      <SummaryCard title="Comparaison avec l'historique" icon={Clock}>
+      <SummaryCard title="Comparison with History" icon={Clock}>
         <p className="text-sm leading-relaxed">
           {summary.comparaison_historique ||
-            'Aucune comparaison disponible faute d\'examens antérieurs dans les documents fournis.'}
+            'No comparison available due to lack of previous exams in provided documents.'}
         </p>
       </SummaryCard>
 
-      <SummaryCard title="Note médicale brute (SOAP)" icon={FileText}>
+      <SummaryCard title="Raw Medical Note (SOAP)" icon={FileText}>
         <div className="space-y-3">
           <pre className="text-xs font-mono bg-muted p-4 rounded-md overflow-x-auto max-h-64 overflow-y-auto whitespace-pre-wrap">
-            {summary.note_medicale_brute || 'Aucune note disponible.'}
+            {summary.note_medicale_brute || 'No note available.'}
           </pre>
           <Button
             variant="outline"
@@ -206,22 +205,22 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
             {copied ? (
               <>
                 <Check className="w-4 h-4 mr-2" />
-                Copié !
+                Copied!
               </>
             ) : (
               <>
                 <Copy className="w-4 h-4 mr-2" />
-                Copier la note
+                Copy Note
               </>
             )}
           </Button>
         </div>
       </SummaryCard>
 
-      <SummaryCard title="À expliquer au patient" icon={MessageCircle}>
+      <SummaryCard title="To Explain to Patient" icon={MessageCircle}>
         <p className="text-sm leading-relaxed">
           {summary.a_expliquer_au_patient ||
-            'Aucune formulation pédagogique disponible.'}
+            'No patient-friendly explanation available.'}
         </p>
       </SummaryCard>
     </div>

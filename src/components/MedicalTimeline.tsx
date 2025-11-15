@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Calendar, Activity, FileText, Stethoscope, Pill, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 
 interface TimelineEvent {
@@ -61,15 +61,15 @@ export const MedicalTimeline = ({ summaryId }: MedicalTimelineProps) => {
   };
 
   if (isLoading) {
-    return <div className="animate-pulse text-muted-foreground">Chargement de la timeline...</div>;
+    return <div className="animate-pulse text-muted-foreground">Loading timeline...</div>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="w-5 h-5 text-primary" />
-        <h3 className="text-lg font-semibold">Timeline médicale</h3>
-        <span className="text-sm text-muted-foreground">({events.length} événements)</span>
+        <h3 className="text-lg font-semibold">Medical Timeline</h3>
+        <span className="text-sm text-muted-foreground">({events.length} events)</span>
       </div>
 
       {/* Timeline visualization */}
@@ -87,13 +87,13 @@ export const MedicalTimeline = ({ summaryId }: MedicalTimelineProps) => {
                     {getEventIcon(event.event_type)}
                     <span className="font-semibold capitalize">{event.event_type}</span>
                     <span className="text-xs opacity-70">
-                      {format(new Date(event.event_date), 'PPP', { locale: fr })}
+                      {format(new Date(event.event_date), 'PPP', { locale: enUS })}
                     </span>
                   </div>
                   <p className="text-sm">{event.description}</p>
                   {event.document_source && (
                     <p className="text-xs opacity-60 mt-2">
-                      Source : {event.document_source}
+                      Source: {event.document_source}
                     </p>
                   )}
                 </div>
@@ -106,7 +106,7 @@ export const MedicalTimeline = ({ summaryId }: MedicalTimelineProps) => {
       {events.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
           <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>Aucun événement chronologique détecté dans les documents.</p>
+          <p>No chronological events detected in documents.</p>
         </div>
       )}
     </div>

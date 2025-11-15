@@ -85,9 +85,9 @@ const Patients = () => {
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" onClick={() => navigate('/')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
+            Back
           </Button>
-          <h1 className="text-3xl font-bold">Vue Multi-patients</h1>
+          <h1 className="text-3xl font-bold">Multi-Patient View</h1>
         </div>
 
         {/* Stats Cards */}
@@ -96,7 +96,7 @@ const Patients = () => {
             <div className="flex items-center gap-3">
               <Users className="w-8 h-8 text-primary" />
               <div>
-                <p className="text-sm text-muted-foreground">Total patients</p>
+                <p className="text-sm text-muted-foreground">Total Patients</p>
                 <p className="text-2xl font-bold">{filteredSummaries.length}</p>
               </div>
             </div>
@@ -105,7 +105,7 @@ const Patients = () => {
             <div className="flex items-center gap-3">
               <AlertCircle className="w-8 h-8 text-destructive" />
               <div>
-                <p className="text-sm text-muted-foreground">Cas urgents</p>
+                <p className="text-sm text-muted-foreground">Urgent Cases</p>
                 <p className="text-2xl font-bold">{urgentCases}</p>
               </div>
             </div>
@@ -114,7 +114,7 @@ const Patients = () => {
             <div className="flex items-center gap-3">
               <Activity className="w-8 h-8 text-amber-500" />
               <div>
-                <p className="text-sm text-muted-foreground">Cas modérés</p>
+                <p className="text-sm text-muted-foreground">Moderate Cases</p>
                 <p className="text-2xl font-bold">{moderateCases}</p>
               </div>
             </div>

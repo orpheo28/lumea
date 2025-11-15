@@ -22,7 +22,7 @@ export const usePdfExport = () => {
       pdf.setFontSize(12);
       pdf.setTextColor(100, 100, 100);
       yPosition += 7;
-      pdf.text('Brief Clinique Automatisé', pageWidth / 2, yPosition, { align: 'center' });
+      pdf.text('Automated Clinical Brief', pageWidth / 2, yPosition, { align: 'center' });
 
       // Line separator
       yPosition += 10;
@@ -33,12 +33,12 @@ export const usePdfExport = () => {
       // Patient info
       pdf.setFontSize(14);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(`Patient : ${summary.patient_name}`, 20, yPosition);
+      pdf.text(`Patient: ${summary.patient_name}`, 20, yPosition);
       yPosition += 7;
       
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
-      pdf.text(`Généré le : ${new Date(summary.created_at).toLocaleDateString('fr-FR')}`, 20, yPosition);
+      pdf.text(`Generated on: ${new Date(summary.created_at).toLocaleDateString('en-US')}`, 20, yPosition);
       yPosition += 10;
 
       // Résumé clinique

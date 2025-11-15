@@ -17,9 +17,9 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
   const { toast } = useToast();
 
   const letterTypes = [
-    { id: 'courrier_medecin', label: 'Courrier médecin', icon: FileText },
-    { id: 'courrier_patient', label: 'Courrier patient', icon: FileText },
-    { id: 'compte_rendu', label: 'Compte-rendu', icon: FileText },
+    { id: 'courrier_medecin', label: 'Physician Letter', icon: FileText },
+    { id: 'courrier_patient', label: 'Patient Letter', icon: FileText },
+    { id: 'compte_rendu', label: 'Consultation Report', icon: FileText },
   ];
 
   const generateLetter = async (letterType: string) => {
@@ -35,8 +35,8 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
       if (data.success && data.letter) {
         setLetters(prev => ({ ...prev, [letterType]: data.letter.content }));
         toast({
-          title: "✅ Courrier généré",
-          description: "Le courrier a été généré avec succès.",
+          title: "✅ Letter generated",
+          description: "The letter was successfully generated.",
         });
       } else {
         throw new Error(data.error || 'Failed to generate letter');
@@ -44,8 +44,8 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
     } catch (err) {
       console.error('Error generating letter:', err);
       toast({
-        title: "❌ Erreur",
-        description: err instanceof Error ? err.message : 'Erreur lors de la génération',
+        title: "❌ Error",
+        description: err instanceof Error ? err.message : 'Error generating letter',
         variant: "destructive",
       });
     } finally {
@@ -57,8 +57,8 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
     navigator.clipboard.writeText(content);
     setCopied(letterType);
     toast({
-      title: "📋 Copié",
-      description: "Le courrier a été copié dans le presse-papier.",
+      title: "📋 Copied",
+      description: "The letter has been copied to clipboard.",
     });
     setTimeout(() => setCopied(null), 2000);
   };
@@ -66,7 +66,7 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Courriers médicaux</h2>
+        <h2 className="text-xl font-bold">Medical Letters</h2>
       </div>
 
       <Tabs defaultValue="courrier_medecin" className="w-full">
@@ -89,7 +89,7 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
                     {type.label}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Générez automatiquement un {type.label.toLowerCase()} professionnel.
+                    Automatically generate a professional {type.label.toLowerCase()}.
                   </p>
                   <Button
                     onClick={() => generateLetter(type.id)}
@@ -98,12 +98,12 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
                     {isGenerating[type.id] ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Génération...
+                        Generating...
                       </>
                     ) : (
                       <>
                         <FileText className="w-4 h-4 mr-2" />
-                        Générer
+                        Generate
                       </>
                     )}
                   </Button>
@@ -117,37 +117,37 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
                       size="sm"
                       onClick={() => copyToClipboard(letters[type.id], type.id)}
                     >
-                      {copied === type.id ? (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                          Copié
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copier
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <div className="bg-muted/30 rounded-lg p-4 whitespace-pre-wrap text-sm leading-relaxed border border-border">
-                    {letters[type.id]}
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => generateLetter(type.id)}
-                    disabled={isGenerating[type.id]}
-                  >
-                    {isGenerating[type.id] ? (
+                    {copied === type.id ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Régénération...
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Copied
                       </>
                     ) : (
-                      'Régénérer'
+                      <>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy
+                      </>
                     )}
                   </Button>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-4 whitespace-pre-wrap text-sm leading-relaxed border border-border">
+                  {letters[type.id]}
+                </div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => generateLetter(type.id)}
+                  disabled={isGenerating[type.id]}
+                >
+                  {isGenerating[type.id] ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Regenerating...
+                    </>
+                  ) : (
+                    'Regenerate'
+                  )}
+                </Button>
                 </div>
               )}
             </Card>
