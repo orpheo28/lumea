@@ -1,1 +1,4 @@
 project_id = "qupgqkvsrzpjgmycoliu"
+
+[functions.generate-clinical-summary]
+verify_jwt = false

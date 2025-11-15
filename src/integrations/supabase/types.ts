@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clinical_summaries: {
+        Row: {
+          a_expliquer_au_patient: string | null
+          comparaison_historique: string | null
+          created_at: string
+          files: Json
+          id: string
+          note_medicale_brute: string | null
+          patient_name: string
+          points_de_vigilance: Json
+          raw_response: Json | null
+          red_flags: Json
+          resume_clinique: string | null
+        }
+        Insert: {
+          a_expliquer_au_patient?: string | null
+          comparaison_historique?: string | null
+          created_at?: string
+          files?: Json
+          id?: string
+          note_medicale_brute?: string | null
+          patient_name: string
+          points_de_vigilance?: Json
+          raw_response?: Json | null
+          red_flags?: Json
+          resume_clinique?: string | null
+        }
+        Update: {
+          a_expliquer_au_patient?: string | null
+          comparaison_historique?: string | null
+          created_at?: string
+          files?: Json
+          id?: string
+          note_medicale_brute?: string | null
+          patient_name?: string
+          points_de_vigilance?: Json
+          raw_response?: Json | null
+          red_flags?: Json
+          resume_clinique?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
