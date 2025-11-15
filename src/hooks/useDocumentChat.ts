@@ -56,7 +56,7 @@ export const useDocumentChat = (summaryId: string | null) => {
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue';
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
       console.error('Error sending message:', err);
     } finally {

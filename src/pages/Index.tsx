@@ -81,8 +81,8 @@ const Index = () => {
                     className="flex items-center gap-2"
                   >
                     <Users className="w-3 h-3" />
-                    <span className="ml-2 hidden md:inline">Multi-patients</span>
-                  </Button>
+                <span className="ml-2 hidden md:inline">Multi-patient</span>
+              </Button>
                 </div>
                 <PatientForm
                   patientName={patientName}

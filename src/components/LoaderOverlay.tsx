@@ -12,8 +12,8 @@ export const LoaderOverlay = () => {
           className="text-center mb-8"
         >
           <Brain className="w-16 h-16 mx-auto text-primary mb-4 animate-pulse" />
-          <h3 className="text-xl font-bold mb-2">Analyse en cours... 📖</h3>
-          <p className="text-muted-foreground">Lecture des documents médicaux</p>
+          <h3 className="text-xl font-bold mb-2">Analysis in progress... 📖</h3>
+          <p className="text-muted-foreground">Reading medical documents</p>
         </motion.div>
         
         {/* Skeleton cards */}
@@ -32,7 +32,7 @@ export const LoaderOverlay = () => {
             />
           </div>
           <p className="text-xs text-center text-muted-foreground">
-            Cela prend généralement 10-15 secondes
+            This usually takes 10-15 seconds
           </p>
         </div>
       </div>

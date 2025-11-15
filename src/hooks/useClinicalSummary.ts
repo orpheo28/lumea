@@ -47,7 +47,7 @@ export const useClinicalSummary = () => {
         generation_time_ms: generationTime,
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue';
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
       console.error('Error generating summary:', err);
     } finally {

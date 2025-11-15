@@ -41,10 +41,10 @@ export const DocumentChat = ({ summaryId, patientName }: DocumentChatProps) => {
       <div className="p-4 border-b bg-card">
         <h3 className="font-semibold flex items-center gap-2">
           <Bot className="w-5 h-5 text-primary" />
-          Chat avec les documents de {patientName}
+          Chat with {patientName}'s documents
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
-          Posez des questions sur les documents médicaux uploadés
+          Ask questions about uploaded medical documents
         </p>
       </div>
 
@@ -53,9 +53,9 @@ export const DocumentChat = ({ summaryId, patientName }: DocumentChatProps) => {
           {messages.length === 0 && (
             <div className="text-center text-sm text-muted-foreground py-8">
               <Bot className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Posez une question sur les documents médicaux</p>
+              <p>Ask a question about the medical documents</p>
               <p className="text-xs mt-2">
-                Exemples : "Quelle est la dernière glycémie ?" ou "Y a-t-il des anomalies ?"
+                Examples: "What is the latest glucose level?" or "Are there any abnormalities?"
               </p>
             </div>
           )}
@@ -79,7 +79,7 @@ export const DocumentChat = ({ summaryId, patientName }: DocumentChatProps) => {
               >
                 <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                 <p className="text-xs opacity-70 mt-1">
-                  {msg.timestamp.toLocaleTimeString('fr-FR', {
+                  {msg.timestamp.toLocaleTimeString('en-US', {
                     hour: '2-digit',
                     minute: '2-digit',
                   })}
@@ -100,7 +100,7 @@ export const DocumentChat = ({ summaryId, patientName }: DocumentChatProps) => {
               </div>
               <div className="bg-muted rounded-lg px-4 py-2">
                 <p className="text-sm text-muted-foreground">
-                  Recherche dans les documents...
+                  Searching documents...
                 </p>
               </div>
             </div>
@@ -120,7 +120,7 @@ export const DocumentChat = ({ summaryId, patientName }: DocumentChatProps) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Posez une question sur les documents..."
+            placeholder="Ask a question about the documents..."
             disabled={isLoading}
             className="flex-1"
           />

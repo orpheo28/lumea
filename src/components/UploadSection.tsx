@@ -73,7 +73,7 @@ export const UploadSection = ({
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="text-base font-semibold">Documents médicaux</h3>
+        <h3 className="text-base font-semibold">Medical Documents</h3>
         
         <div
           onDrop={handleDrop}
@@ -96,10 +96,10 @@ export const UploadSection = ({
             <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           </motion.div>
           <p className="text-base font-medium mb-2">
-            Glissez-déposez jusqu'à 5 documents (PDF ou images)
+            Drop up to 5 documents (PDF or images)
           </p>
           <p className="text-sm text-muted-foreground">
-            Comptes-rendus, bilans, IRM, radios, scanners...
+            Reports, labs, MRI, X-rays, scans...
           </p>
           <input
             id="file-input"
@@ -168,12 +168,12 @@ export const UploadSection = ({
         {isLoading ? (
           <span className="flex items-center gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
-            Analyse en cours...
+            Analysis in progress...
           </span>
         ) : (
           <span className="flex items-center gap-2">
             <Sparkles className="w-5 h-5" />
-            Générer le brief clinique
+            Generate Clinical Brief
           </span>
         )}
       </Button>

@@ -16,14 +16,14 @@ export const PatientForm = ({ patientName, onPatientNameChange, disabled }: Pati
       <Input
         id="patient-name"
         type="text"
-        placeholder="Nom du patient / Identifiant"
+        placeholder="Patient Name / ID"
         value={patientName}
         onChange={(e) => onPatientNameChange(e.target.value)}
         disabled={disabled}
         className="h-11"
       />
       <p className="text-sm text-muted-foreground">
-        Identifiant unique du patient pour cette analyse
+        Unique patient identifier for this analysis
       </p>
     </div>
   );
