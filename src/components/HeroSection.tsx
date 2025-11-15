@@ -12,7 +12,7 @@ export const HeroSection = () => {
           <div className="flex items-center gap-4">
             <h1 className="text-2xl md:text-3xl font-bold">
               <span className="bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Medora MD
+                Lumea
               </span>
             </h1>
             <span className="text-sm text-muted-foreground hidden md:block">
