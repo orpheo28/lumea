@@ -33,31 +33,35 @@ Lumea targets the number one bottleneck in daily clinical practice:
 
 Product Overview
 
-Lumea is an AI-native tool that turns a chaotic patient record into a clear clinical brief in seconds.
-It extracts, organizes, and summarizes information to save doctors time.
+Lumea is an AI-native clinical documentation tool that transforms chaotic patient records into structured clinical briefs in seconds.
 
-How Lumea Works : 
+How It Works : Upload → Process → Extract → Summarize → Structure → Brief → Store
 
-1. Upload
- The doctor uploads PDFs (labs, imaging, notes, discharge summaries).
-2. Ingestion & Indexing
-Gemini File Search parses, OCRs, and indexes every document.
-3. Extraction (No medical interpretation)
-Gemini 2.5 Flash detects new information, changes, and key elements across the patient’s history.
-4. 5-Line Clinical Summary
- Lumea condenses the essential updates into a five-line longitudinal summary.
-5. Consultation Note Draft
- A raw structured note is generated to prepare the appointment.
-6. 20-Second Audio Brief
- ElevenLabs produces a short spoken recap for rapid pre-consultation review.
-7. Structured Storage
- Supabase stores all outputs for fast retrieval at the next visit.
+Document Upload : Doctors upload PDFs (lab results, imaging reports, discharge summaries, clinical notes)
 
-We are AI-native
+AI Processing : Gemini and Mistral OCR parses, OCRs, and indexes all documents
 
-Lumea runs as an autonomous pipeline: ingest → index → extract → summarize → audio brief → store.
-No human intervention is needed.
-The entire system can be maintained by a single engineer.
+Smart Extraction : Gemini analyzes documents to detect:
+- New clinical findings and changes
+- Medical timeline events
+- Inconsistencies across records
+- Imaging observations (objective, non-diagnostic)
+
+Clinical Summary : Generates a concise 5-line longitudinal summary of key updates
+
+Consultation Note : Creates a structured draft note (SOAP format) ready for review
+
+Audio Brief : ElevenLabs TTS produces a 20-second spoken recap for pre-consultation review
+
+Storage : Supabase stores all outputs with full-text search for instant retrieval
+
+Tech Stack : 
+
+- Frontend: React + TypeScript + Tailwind CSS with Lovable
+- Backend: Supabase (PostgreSQL + Edge Functions)
+- AI Engine: Google Gemini + Mistral OCR
+- Voice: ElevenLabs 
+- Deployment: Lovable 
 
 ROI for Doctors
 
