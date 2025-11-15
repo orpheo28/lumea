@@ -11,6 +11,7 @@ import { DocumentChat } from '@/components/DocumentChat';
 import { LoaderOverlay } from '@/components/LoaderOverlay';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { MedicalTimeline } from '@/components/MedicalTimeline';
+import { Card } from '@/components/ui/card';
 
 import { useClinicalSummary } from '@/hooks/useClinicalSummary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -71,59 +72,95 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-6 h-full">
             {/* Left column - Input */}
             <ScrollArea className="h-full pr-4">
-              <div className="space-y-4 pb-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold">Nouveau brief</h2>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate('/patients')}
-                    className="flex items-center gap-2"
-                  >
-                    <Users className="w-3 h-3" />
-                <span className="ml-2 hidden md:inline">Multi-patient</span>
-              </Button>
-                </div>
-                <PatientForm
-                  patientName={patientName}
-                  onPatientNameChange={setPatientName}
-                  disabled={isLoading}
-                />
-                <UploadSection
-                  files={files}
-                  onFilesChange={setFiles}
-                  onGenerate={handleGenerate}
-                  disabled={isLoading}
-                  isLoading={isLoading}
-                  patientName={patientName}
-                />
+              <div className="space-y-6 pb-6">
+                <Card className="p-6 md:p-8 shadow-xl shadow-primary/5 border-2 rounded-2xl bg-gradient-to-br from-background via-background to-muted/20">
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="flex items-center justify-between pb-6 border-b border-border/50">
+                      <h2 className="text-2xl font-bold flex items-center gap-3">
+                        <motion.div
+                          animate={{ rotate: [0, 15, -15, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <Sparkles className="w-6 h-6 text-primary" />
+                        </motion.div>
+                        <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                          Nouveau Brief
+                        </span>
+                      </h2>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate('/patients')}
+                        className="flex items-center gap-2 hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-300 rounded-lg"
+                      >
+                        <Users className="w-4 h-4" />
+                        <span className="hidden sm:inline">Multi-patient</span>
+                      </Button>
+                    </div>
+
+                    <PatientForm
+                      patientName={patientName}
+                      onPatientNameChange={setPatientName}
+                      disabled={isLoading}
+                    />
+
+                    <UploadSection
+                      files={files}
+                      onFilesChange={setFiles}
+                      onGenerate={handleGenerate}
+                      disabled={isLoading}
+                      isLoading={isLoading}
+                      patientName={patientName}
+                    />
+                  </div>
+                </Card>
               </div>
             </ScrollArea>
 
             {/* Right column - Results */}
             <ScrollArea className="h-full pr-4">
-              <div className="space-y-4 pb-6">
-            {error && <ErrorBanner message={error} onRetry={handleRetry} onDismiss={reset} />}
-            
-            {!summary && !error && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="border-2 border-dashed border-border rounded-2xl p-12 text-center bg-gradient-to-br from-muted/50 to-background"
-              >
-                <div className="relative mb-6">
-                  <div className="w-24 h-24 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                    <FileText className="w-12 h-12 text-primary" />
+              <div className="space-y-6 pb-6">
+                {error && (
+                  <ErrorBanner
+                    message={error}
+                    onRetry={handleRetry}
+                  />
+                )}
+
+                {!summary && !error && (
+                  <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+                    <Card className="max-w-md p-12 text-center border-2 border-dashed rounded-2xl bg-gradient-to-br from-muted/30 via-background to-muted/30">
+                      <motion.div
+                        animate={{ 
+                          y: [0, -10, 0],
+                          rotate: [0, 5, -5, 0]
+                        }}
+                        transition={{ 
+                          duration: 4, 
+                          repeat: Infinity, 
+                          ease: "easeInOut" 
+                        }}
+                      >
+                        <FileText className="w-20 h-20 mx-auto mb-6 text-primary/30" />
+                      </motion.div>
+                      <h3 className="text-xl font-semibold mb-3 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                        Brief Clinique
+                      </h3>
+                      <p className="text-muted-foreground mb-2">
+                        Le résumé clinique apparaîtra ici
+                      </p>
+                      <p className="text-sm text-muted-foreground/70">
+                        Remplissez le formulaire et uploadez vos documents pour générer une analyse complète
+                      </p>
+                      <div className="mt-6 flex items-center justify-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary/40 animate-pulse" />
+                        <div className="w-2 h-2 rounded-full bg-blue-500/40 animate-pulse" style={{ animationDelay: '0.2s' }} />
+                        <div className="w-2 h-2 rounded-full bg-purple-500/40 animate-pulse" style={{ animationDelay: '0.4s' }} />
+                      </div>
+                    </Card>
                   </div>
-                  <Sparkles className="absolute top-0 right-1/3 w-6 h-6 text-amber-400 animate-pulse" />
-                  <Sparkles className="absolute bottom-0 left-1/3 w-4 h-4 text-blue-400 animate-pulse" style={{ animationDelay: '500ms' }} />
-                </div>
-                <h3 className="text-xl font-bold mb-2">Prêt à analyser ✨</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  Uploadez les documents médicaux et nous générerons un brief clinique complet en quelques secondes
-                </p>
-              </motion.div>
-            )}
+                )}
 
             {summary && !showDetails && (
               <QuickSummaryView summary={summary} onShowDetails={() => setShowDetails(true)} />

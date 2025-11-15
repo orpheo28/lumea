@@ -72,8 +72,11 @@ export const UploadSection = ({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
-        <h3 className="text-base font-semibold">Medical Documents</h3>
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <FileText className="w-5 h-5 text-primary" />
+          <h3 className="text-base font-semibold">Documents Médicaux</h3>
+        </div>
         
         <div
           onDrop={handleDrop}
@@ -81,26 +84,39 @@ export const UploadSection = ({
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           className={cn(
-            "border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 cursor-pointer",
+            "group relative border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-500 cursor-pointer overflow-hidden",
             isDragging
-              ? "border-primary bg-primary/10 scale-105 shadow-lg"
-              : "border-border hover:border-primary/50 bg-muted/30"
+              ? "border-primary bg-gradient-to-br from-primary/15 via-blue-500/10 to-purple-500/15 scale-[1.02] shadow-2xl shadow-primary/20"
+              : "border-border/60 hover:border-primary/60 bg-gradient-to-br from-muted/40 via-background/50 to-muted/40 hover:shadow-xl hover:shadow-primary/5"
           )}
           onClick={() => document.getElementById('file-input')?.click()}
         >
+          {/* Background gradient effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", bounce: 0.5 }}
+            className="relative"
           >
-            <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Upload className="w-14 h-14 mx-auto mb-5 text-primary/70 group-hover:text-primary transition-colors duration-300" />
+            </motion.div>
           </motion.div>
-          <p className="text-base font-medium mb-2">
-            Drop up to 5 documents (PDF or images)
+          <p className="relative text-lg font-semibold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Déposez jusqu'à 5 documents
           </p>
-          <p className="text-sm text-muted-foreground">
-            Reports, labs, MRI, X-rays, scans...
+          <p className="relative text-sm text-muted-foreground mb-3">
+            PDF ou images (rapports, analyses, IRM, radiographies...)
           </p>
+          <div className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-medium">
+            <Sparkles className="w-3 h-3" />
+            <span>Cliquez ou glissez-déposez</span>
+          </div>
           <input
             id="file-input"
             type="file"
@@ -113,7 +129,7 @@ export const UploadSection = ({
         </div>
 
         {files.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {files.map((file, index) => (
               <motion.div
                 key={index}
@@ -121,20 +137,24 @@ export const UploadSection = ({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-3 flex items-center justify-between hover:shadow-md transition-all duration-200">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    {file.type.startsWith('image/') ? (
-                      <FileImage className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                    ) : (
-                      <FileText className="w-5 h-5 text-primary flex-shrink-0" />
-                    )}
+                <Card className="group p-4 flex items-center justify-between hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 border-2 hover:border-primary/30 rounded-xl bg-gradient-to-r from-background to-muted/30">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+                      {file.type.startsWith('image/') ? (
+                        <FileImage className="w-6 h-6 text-blue-500 flex-shrink-0" />
+                      ) : (
+                        <FileText className="w-6 h-6 text-primary flex-shrink-0" />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{file.name}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm font-semibold truncate">{file.name}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-2">
                         {(file.size / 1024).toFixed(1)} KB
+                        <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                        <span className="text-green-600 dark:text-green-400">✓ Prêt</span>
                       </p>
                     </div>
-                    <Badge variant="secondary" className="flex-shrink-0">
+                    <Badge variant="secondary" className="flex-shrink-0 font-semibold px-3 py-1">
                       {file.type.startsWith('image/') ? 'IMAGE' : 'PDF'}
                     </Badge>
                   </div>
@@ -143,7 +163,7 @@ export const UploadSection = ({
                     size="icon"
                     onClick={() => removeFile(index)}
                     disabled={disabled}
-                    className="flex-shrink-0 ml-2"
+                    className="flex-shrink-0 ml-2 hover:bg-destructive/10 hover:text-destructive rounded-lg transition-all duration-300"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -158,22 +178,30 @@ export const UploadSection = ({
         onClick={onGenerate}
         disabled={!canGenerate || isLoading}
         className={cn(
-          "w-full h-14 text-base font-semibold relative overflow-hidden",
-          "bg-gradient-to-r from-primary to-blue-600 hover:shadow-xl hover:scale-105",
-          "transition-all duration-300",
-          "disabled:opacity-50 disabled:hover:scale-100"
+          "w-full h-16 text-lg font-bold relative overflow-hidden group",
+          "bg-gradient-to-r from-primary via-blue-600 to-purple-600 hover:shadow-2xl hover:shadow-primary/30 hover:scale-[1.02]",
+          "transition-all duration-500 rounded-xl",
+          "disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
         )}
         size="lg"
       >
+        {/* Animated background shimmer */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+        
         {isLoading ? (
-          <span className="flex items-center gap-2">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            Analysis in progress...
+          <span className="relative flex items-center gap-3">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span>Analyse en cours...</span>
           </span>
         ) : (
-          <span className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            Generate Clinical Brief
+          <span className="relative flex items-center gap-3">
+            <motion.div
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Sparkles className="w-6 h-6" />
+            </motion.div>
+            <span>Générer le Brief Clinique</span>
           </span>
         )}
       </Button>
