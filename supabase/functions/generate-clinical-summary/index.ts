@@ -173,9 +173,9 @@ Règles :
           parts: [
             { text: prompt },
             ...geminiFileUris.map(uri => ({
-              file_data: {
-                mime_type: 'application/pdf',
-                file_uri: uri
+              fileData: {
+                mimeType: 'application/pdf',
+                fileUri: uri
               }
             }))
           ]
