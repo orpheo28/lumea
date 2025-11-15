@@ -80,9 +80,9 @@ Réponds en français.`
           ...geminiMessages,
           {
             parts: fileUris.map((uri: string) => ({
-              fileData: {
-                mimeType: 'application/pdf',
-                fileUri: uri
+              file_data: {
+                mime_type: 'application/pdf',
+                file_uri: uri
               }
             }))
           }
