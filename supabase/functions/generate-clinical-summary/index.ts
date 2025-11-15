@@ -163,30 +163,34 @@ Règles :
 
     const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
     
+    const requestBody = {
+      contents: [{
+        parts: [
+          { text: prompt },
+          ...geminiFileUris.map(uri => ({
+            file_data: {
+              mime_type: 'application/pdf',
+              file_uri: uri
+            }
+          }))
+        ]
+      }],
+      generationConfig: {
+        temperature: 0.2,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 8192,
+      }
+    };
+
+    console.log('Request body for Gemini:', JSON.stringify(requestBody, null, 2));
+
     const response = await fetch(`${apiUrl}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt },
-            ...geminiFileUris.map(uri => ({
-              file_data: {
-                mime_type: 'application/pdf',
-                file_uri: uri
-              }
-            }))
-          ]
-        }],
-        generationConfig: {
-          temperature: 0.2,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
-        }
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
