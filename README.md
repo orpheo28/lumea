@@ -1,73 +1,108 @@
-# Welcome to your Lovable project
+https://medora-brief-ai.lovable.app
 
-## Project info
+Lumea. Read less. Understand more. Treat faster.
 
-**URL**: https://lovable.dev/projects/f4f8e0e6-f3ab-4869-9a7e-d737419d96ed
+A doctor spends more time handling administrative work than treating patients.
+Lumea changes this reality by summarizing each clinical file in seconds.
+The time saved becomes care, and care becomes faster.
+More patients seen, shorter waiting times, more lives protected.
 
-## How can I edit this code?
+Market Overview : 
 
-There are several ways of editing your application.
+The European digital health market exceeds approximately €120 billion and is growing at 10–12% annually.
+France alone represents roughly €15 billion.
+Europe counts more than 2 million doctors (including approximately 250,000 in France), all facing a massive and accelerating documentation burden.
 
-**Use Lovable**
+The Core Bottleneck
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f4f8e0e6-f3ab-4869-9a7e-d737419d96ed) and start prompting.
+Physicians spend approximately 25% of their time on:
+-laboratory results
+-imaging reports
+-clinical notes and summaries
+-prescriptions
+-hospital discharge summaries
+-the shared medical file (DMP)
+-internal messaging and administrative exchanges
 
-Changes made via Lovable will be committed automatically to this repo.
+Document review accounts for 40–50% of total clinical time.
 
-**Use your preferred IDE**
+Yet no tool provides a reliable, structured synthesis of this workflow.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Lumea targets the number one bottleneck in daily clinical practice:
+“Read less, understand faster, see more patients.”
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Product Overview
 
-Follow these steps:
+Lumea is an AI-native tool that turns a chaotic patient record into a clear clinical brief in seconds.
+It extracts, organizes, and summarizes information to save doctors time.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+How Lumea Works : 
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. Upload
+ The doctor uploads PDFs (labs, imaging, notes, discharge summaries).
+2. Ingestion & Indexing
+Gemini File Search parses, OCRs, and indexes every document.
+3. Extraction (No medical interpretation)
+Gemini 2.5 Flash detects new information, changes, and key elements across the patient’s history.
+4. 5-Line Clinical Summary
+ Lumea condenses the essential updates into a five-line longitudinal summary.
+5. Consultation Note Draft
+ A raw structured note is generated to prepare the appointment.
+6. 20-Second Audio Brief
+ ElevenLabs produces a short spoken recap for rapid pre-consultation review.
+7. Structured Storage
+ Supabase stores all outputs for fast retrieval at the next visit.
 
-# Step 3: Install the necessary dependencies.
-npm i
+We are AI-native
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Lumea runs as an autonomous pipeline: ingest → index → extract → summarize → audio brief → store.
+No human intervention is needed.
+The entire system can be maintained by a single engineer.
 
-**Edit a file directly in GitHub**
+ROI for Doctors
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The ROI is immediate, measurable, and substantial.
 
-**Use GitHub Codespaces**
+1. Direct Time Savings
+Average of 20 minutes saved per patient encounter.
+For a physician seeing 20 patients per day:
+ 160 to 400 minutes saved per day
+ = 2h40 to 6h40 of cognitive load eliminated.
+2. Increased Throughput / Reduced Waiting Time
++3 to +8 additional patients per day without increasing clinical effort
+ = +15–40 per week
+ = +60–160 per month.
+3. Direct Economic ROI
+For general practitioners or specialists:
++3 patients/day → +€1,200/week (~€5,000/month)
++8 patients/day → +€3,200/week (~€13,000/month)
+Cost of Lumea: €49/month → ROI between x100 and x200.
+4. Reduced Cognitive Burden
+Less administrative fatigue
+Reduced risk of oversight
+More focused consultations → improved care quality.
+5. Organizational Impact
+Smoother scheduling
+Fewer delays between patients
+Better comprehension of patient history → faster clinical decisions.
+6. Overall ROI Summary
+Administrative time reduced: ~50%.
+Productivity increased: +20% to +40%.
+Additional clinical revenue: €5,000–€13,000/month.
+Lumea cost: €49/month → instant ROI for them.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Go-To-Market Strategy
 
-## What technologies are used for this project?
+Lumea enters the market through individual doctors, who adopt the tool because it instantly saves them 2–6 hours per day.
+Once a doctor uses Lumea, the entire practice typically follows, creating a natural expansion loop (1 doctor → 5–10 users).
+As adoption grows within clinics, Lumea becomes the default workflow for documentation review.
+In a second phase, hospitals and large medical groups integrate Lumea to standardize processes and reduce workload.
+The product spreads organically through real clinical value — no sales force required.
 
-This project is built with:
+Final Summary
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The European digital health market exceeds €120 billion, with more than 2 million doctors facing increasing documentation overload.
+Document review alone consumes approximately 20 minutes per patient, making it the primary clinical bottleneck.
+Lumea removes this constraint by generating a longitudinal clinical summary in 10 seconds, enabling physicians to save 2-6 hours per day, see 3 to 8 more patients, and achieve an ROI of more than 100× for a €49/month subscription.
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f4f8e0e6-f3ab-4869-9a7e-d737419d96ed) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+With Lumea, doctors read less, understand more and treat faster ! 
