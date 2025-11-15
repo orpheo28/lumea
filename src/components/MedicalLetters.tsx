@@ -43,10 +43,17 @@ export const MedicalLetters = ({ summaryId }: MedicalLettersProps) => {
       }
     } catch (err) {
       console.error('Error generating letter:', err);
+      
+      const errorMessage = err instanceof Error ? err.message : 'Error generating letter';
+      const isQuotaError = errorMessage.includes('quota');
+      
       toast({
-        title: "❌ Error",
-        description: err instanceof Error ? err.message : 'Error generating letter',
+        title: isQuotaError ? "⏳ API Quota Exceeded" : "❌ Error",
+        description: isQuotaError 
+          ? "The Gemini API quota has been exceeded. Please wait a few minutes and try again."
+          : errorMessage,
         variant: "destructive",
+        duration: isQuotaError ? 8000 : 5000,
       });
     } finally {
       setIsGenerating(prev => ({ ...prev, [letterType]: false }));
