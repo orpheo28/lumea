@@ -15,6 +15,7 @@ import { MedicalLetters } from '@/components/MedicalLetters';
 import { useClinicalSummary } from '@/hooks/useClinicalSummary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
@@ -60,43 +61,48 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {isLoading && <LoaderOverlay />}
       
       <HeroSection />
 
-      <main className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-7xl">
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left column - Input */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Nouveau brief</h2>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/patients')}
-                className="flex items-center gap-2"
-              >
-                <Users className="w-4 h-4" />
-                Vue Multi-patients
-              </Button>
-            </div>
-            <PatientForm
-              patientName={patientName}
-              onPatientNameChange={setPatientName}
-              disabled={isLoading}
-            />
-            <UploadSection
-              files={files}
-              onFilesChange={setFiles}
-              onGenerate={handleGenerate}
-              disabled={isLoading}
-              isLoading={isLoading}
-              patientName={patientName}
-            />
-          </div>
+      <main className="flex-1 overflow-hidden">
+        <div className="h-full container mx-auto px-4 md:px-8 max-w-7xl pt-4">
+          <div className="grid lg:grid-cols-2 gap-6 h-full">
+            {/* Left column - Input */}
+            <ScrollArea className="h-full pr-4">
+              <div className="space-y-4 pb-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold">Nouveau brief</h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/patients')}
+                    className="flex items-center gap-2"
+                  >
+                    <Users className="w-3 h-3" />
+                    <span className="ml-2 hidden md:inline">Multi-patients</span>
+                  </Button>
+                </div>
+                <PatientForm
+                  patientName={patientName}
+                  onPatientNameChange={setPatientName}
+                  disabled={isLoading}
+                />
+                <UploadSection
+                  files={files}
+                  onFilesChange={setFiles}
+                  onGenerate={handleGenerate}
+                  disabled={isLoading}
+                  isLoading={isLoading}
+                  patientName={patientName}
+                />
+              </div>
+            </ScrollArea>
 
-          {/* Right column - Results */}
-          <div className="space-y-4">
+            {/* Right column - Results */}
+            <ScrollArea className="h-full pr-4">
+              <div className="space-y-4 pb-6">
             {error && <ErrorBanner message={error} onRetry={handleRetry} onDismiss={reset} />}
             
             {!summary && !error && (
@@ -161,6 +167,8 @@ const Index = () => {
                 </TabsContent>
               </Tabs>
             )}
+              </div>
+            </ScrollArea>
           </div>
         </div>
       </main>
