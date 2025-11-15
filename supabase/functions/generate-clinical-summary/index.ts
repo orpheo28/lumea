@@ -16,11 +16,16 @@ serve(async (req) => {
   try {
     // Get environment variables
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY not configured');
+    }
+    
+    if (!ELEVENLABS_API_KEY) {
+      throw new Error('ELEVENLABS_API_KEY not configured');
     }
 
     // Initialize Supabase client
@@ -225,7 +230,46 @@ Règles :
       throw new Error('Failed to parse AI response as JSON');
     }
 
-    // Save to database with Gemini file URIs
+    // Generate audio brief with ElevenLabs
+    let audioBriefBase64 = null;
+    try {
+      // Create condensed audio script (max 50 words)
+      const audioScript = `Brief patient ${patientName}. ${parsedSummary.resume_clinique?.split('.').slice(0, 2).join('.')}. ${parsedSummary.red_flags?.length > 0 ? `Attention : ${parsedSummary.red_flags[0]}` : 'Pas de red flag.'}`;
+      
+      const audioResponse = await fetch(
+        'https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', // Sarah voice
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'audio/mpeg',
+            'xi-api-key': ELEVENLABS_API_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: audioScript,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.75,
+            }
+          })
+        }
+      );
+
+      if (audioResponse.ok) {
+        const audioArrayBuffer = await audioResponse.arrayBuffer();
+        const audioBytes = new Uint8Array(audioArrayBuffer);
+        audioBriefBase64 = btoa(String.fromCharCode(...audioBytes));
+        console.log('Audio brief generated successfully');
+      } else {
+        console.error('ElevenLabs API error:', await audioResponse.text());
+      }
+    } catch (audioError) {
+      console.error('Failed to generate audio brief:', audioError);
+      // Don't fail the whole request if audio generation fails
+    }
+
+    // Save to database with Gemini file URIs and audio
     const { data: savedSummary, error: dbError } = await supabase
       .from('clinical_summaries')
       .insert({
@@ -238,6 +282,7 @@ Règles :
         red_flags: parsedSummary.red_flags,
         note_medicale_brute: parsedSummary.note_medicale_brute,
         a_expliquer_au_patient: parsedSummary.a_expliquer_au_patient,
+        audio_brief_base64: audioBriefBase64,
         raw_response: geminiResponse,
       })
       .select()

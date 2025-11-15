@@ -14,6 +14,8 @@ export interface ClinicalSummary {
   red_flags: string[];
   note_medicale_brute: string | null;
   a_expliquer_au_patient: string | null;
+  audio_brief_base64: string | null;
+  generation_time_ms: number | null;
 }
 
 export interface GenerateSummaryRequest {

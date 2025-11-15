@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { PatientForm } from '@/components/PatientForm';
 import { UploadSection } from '@/components/UploadSection';
 import { SummaryLayout } from '@/components/SummaryLayout';
+import { QuickSummaryView } from '@/components/QuickSummaryView';
 import { DocumentChat } from '@/components/DocumentChat';
 import { LoaderOverlay } from '@/components/LoaderOverlay';
 import { ErrorBanner } from '@/components/ErrorBanner';
@@ -13,6 +14,7 @@ import { FileText, MessageSquare } from 'lucide-react';
 const Index = () => {
   const [patientName, setPatientName] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [showDetails, setShowDetails] = useState(false);
   const { isLoading, error, summary, generateSummary, reset } = useClinicalSummary();
 
   const handleGenerate = async () => {
@@ -63,7 +65,11 @@ const Index = () => {
               </div>
             )}
 
-            {summary && (
+            {summary && !showDetails && (
+              <QuickSummaryView summary={summary} onShowDetails={() => setShowDetails(true)} />
+            )}
+
+            {summary && showDetails && (
               <Tabs defaultValue="summary" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="summary" className="flex items-center gap-2">

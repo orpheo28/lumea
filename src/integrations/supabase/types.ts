@@ -17,10 +17,12 @@ export type Database = {
       clinical_summaries: {
         Row: {
           a_expliquer_au_patient: string | null
+          audio_brief_base64: string | null
           comparaison_historique: string | null
           created_at: string
           files: Json
           gemini_file_uris: Json | null
+          generation_time_ms: number | null
           id: string
           note_medicale_brute: string | null
           patient_name: string
@@ -31,10 +33,12 @@ export type Database = {
         }
         Insert: {
           a_expliquer_au_patient?: string | null
+          audio_brief_base64?: string | null
           comparaison_historique?: string | null
           created_at?: string
           files?: Json
           gemini_file_uris?: Json | null
+          generation_time_ms?: number | null
           id?: string
           note_medicale_brute?: string | null
           patient_name: string
@@ -45,10 +49,12 @@ export type Database = {
         }
         Update: {
           a_expliquer_au_patient?: string | null
+          audio_brief_base64?: string | null
           comparaison_historique?: string | null
           created_at?: string
           files?: Json
           gemini_file_uris?: Json | null
+          generation_time_ms?: number | null
           id?: string
           note_medicale_brute?: string | null
           patient_name?: string
