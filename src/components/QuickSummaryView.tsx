@@ -1,7 +1,10 @@
-import { AlertCircle, AlertTriangle, Clock, Volume2 } from 'lucide-react';
+import { ClinicalSummary } from '@/types/clinical';
+import { AlertCircle, AlertTriangle, Clock, Volume2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { ClinicalSummary } from '@/types/clinical';
-import { AudioPlayer } from '@/components/AudioPlayer';
+import { AudioPlayer } from './AudioPlayer';
+import CountUp from 'react-countup';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface QuickSummaryViewProps {
   summary: ClinicalSummary;
@@ -9,97 +12,52 @@ interface QuickSummaryViewProps {
 }
 
 export const QuickSummaryView = ({ summary, onShowDetails }: QuickSummaryViewProps) => {
-  const topRedFlags = summary.red_flags?.slice(0, 3) || [];
-  const topVigilance = summary.points_de_vigilance?.slice(0, 3) || [];
-  
-  // Extract first sentence of clinical summary
-  const quickResume = summary.resume_clinique?.split('.')[0] + '.' || 'Aucun résumé disponible.';
+  const generationTimeSeconds = summary.generation_time_ms ? (summary.generation_time_ms / 1000).toFixed(1) : null;
 
   return (
-    <div className="bg-gradient-to-br from-primary/5 via-background to-background border-2 border-primary/20 rounded-xl p-6 shadow-lg">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h2 className="text-2xl font-bold mb-1">{summary.patient_name}</h2>
-          {summary.generation_time_ms && (
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              Brief généré en {(summary.generation_time_ms / 1000).toFixed(1)}s
-            </p>
-          )}
-        </div>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-6">
+      <div className="text-center space-y-3">
+        <motion.h2 initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="text-2xl font-bold">{summary.patient_name}</motion.h2>
+        {generationTimeSeconds && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+            <Clock className="w-4 h-4" />Brief généré en {generationTimeSeconds} secondes
+          </motion.div>
+        )}
       </div>
-
-      <div className="space-y-4">
-        {/* Quick Resume */}
-        <div className="bg-card/50 rounded-lg p-3 border border-border">
-          <p className="text-sm leading-relaxed">{quickResume}</p>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-gradient-to-br from-card to-muted/30 border border-border rounded-xl p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg"><Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" /></div>
+          <h3 className="font-bold text-lg">Résumé rapide</h3>
         </div>
-
-        {/* Audio Brief */}
-        {summary.audio_brief_base64 && (
-          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Volume2 className="w-4 h-4 text-primary" />
-              <h3 className="font-semibold text-sm">Brief Audio (20s)</h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">{summary.resume_clinique?.slice(0, 300) || 'Aucun résumé disponible.'}{summary.resume_clinique && summary.resume_clinique.length > 300 && '...'}</p>
+      </motion.div>
+      {summary.audio_brief_base64 && (
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }} className={cn("relative overflow-hidden bg-gradient-to-br from-primary/10 via-blue-500/10 to-purple-500/10 dark:from-primary/5 dark:via-blue-500/5 dark:to-purple-500/5 border-2 border-primary/30 rounded-xl p-4 shadow-lg shadow-primary/20")}>
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-50 blur-xl" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="p-2 bg-primary/20 rounded-lg"><Volume2 className="w-5 h-5 text-primary" /></div>
+              <div><h3 className="font-bold text-sm">Brief Audio (20s)</h3><p className="text-xs text-muted-foreground">Écoutez avant la consultation</p></div>
             </div>
             <AudioPlayer audioBase64={summary.audio_brief_base64} />
           </div>
-        )}
-
-        {/* Time Saved Counter */}
-        <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-lg p-2 text-center">
-          <p className="text-xs text-green-900 dark:text-green-200">
-            ⏱️ ~15 minutes économisées sur ce dossier
-          </p>
-        </div>
-
-        {/* Red Flags & Vigilance in 2 columns */}
-        <div className="grid md:grid-cols-2 gap-3">
-          {/* Red Flags */}
-          <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="w-4 h-4 text-destructive" />
-              <h3 className="font-semibold text-sm">Red Flags</h3>
-            </div>
-            {topRedFlags.length > 0 ? (
-              <ul className="space-y-1">
-                {topRedFlags.map((flag, idx) => (
-                  <li key={idx} className="text-xs text-destructive flex gap-1.5">
-                    <span>•</span>
-                    <span className="line-clamp-1">{flag}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-muted-foreground">Aucun</p>
-            )}
-          </div>
-
-          {/* Points de Vigilance */}
-          <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              <h3 className="font-semibold text-sm">Points de vigilance</h3>
-            </div>
-            {topVigilance.length > 0 ? (
-              <ul className="space-y-1">
-                {topVigilance.map((point, idx) => (
-                  <li key={idx} className="text-xs text-amber-900 dark:text-amber-200 flex gap-1.5">
-                    <span>•</span>
-                    <span className="line-clamp-1">{point}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-muted-foreground">Aucun</p>
-            )}
-          </div>
-        </div>
-
-        <Button onClick={onShowDetails} className="w-full">
-          Voir le brief complet
-        </Button>
+        </motion.div>
+      )}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-4 text-center">
+        <p className="text-xs text-green-700 dark:text-green-300 mb-1">⏱️ Temps économisé</p>
+        <p className="text-4xl font-bold text-green-600 dark:text-green-400"><CountUp end={15} duration={2.5} /><span className="text-2xl ml-1">min</span></p>
+      </motion.div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }} className={cn("border rounded-xl p-4", summary.red_flags && summary.red_flags.length > 0 ? "border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20" : "border-border bg-card")}>
+          <div className="flex items-center gap-2 mb-3"><div className="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg"><AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" /></div><h3 className="font-bold text-sm">Red Flags</h3></div>
+          {summary.red_flags && summary.red_flags.length > 0 ? (<ul className="space-y-1.5">{summary.red_flags.slice(0, 3).map((flag, index) => (<li key={index} className="text-sm flex gap-2"><span className="text-red-600 dark:text-red-400">•</span><span className="text-sm">{flag}</span></li>))}</ul>) : (<p className="text-sm text-muted-foreground">Aucun red flag détecté</p>)}
+        </motion.div>
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 }} className="border border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3"><div className="p-2 bg-amber-100 dark:bg-amber-900/20 rounded-lg"><AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" /></div><h3 className="font-bold text-sm">Points de vigilance</h3></div>
+          {summary.points_de_vigilance && summary.points_de_vigilance.length > 0 ? (<ul className="space-y-1.5">{summary.points_de_vigilance.slice(0, 3).map((point, index) => (<li key={index} className="text-sm flex gap-2"><span className="text-amber-600 dark:text-amber-400">•</span><span className="text-sm">{point}</span></li>))}</ul>) : (<p className="text-sm text-muted-foreground">Aucun point particulier</p>)}
+        </motion.div>
       </div>
-    </div>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}><Button onClick={onShowDetails} variant="outline" className="w-full h-12 text-base font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-200">Voir le brief complet</Button></motion.div>
+    </motion.div>
   );
 };

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { FileText, MessageSquare, Calendar, Mail, Users, Sparkles } from 'lucide-react';
 import { HeroSection } from '@/components/HeroSection';
 import { PatientForm } from '@/components/PatientForm';
 import { UploadSection } from '@/components/UploadSection';
@@ -8,11 +10,10 @@ import { QuickSummaryView } from '@/components/QuickSummaryView';
 import { DocumentChat } from '@/components/DocumentChat';
 import { LoaderOverlay } from '@/components/LoaderOverlay';
 import { ErrorBanner } from '@/components/ErrorBanner';
-import { useClinicalSummary } from '@/hooks/useClinicalSummary';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, MessageSquare, Calendar, Mail, Users } from 'lucide-react';
 import { MedicalTimeline } from '@/components/MedicalTimeline';
 import { MedicalLetters } from '@/components/MedicalLetters';
+import { useClinicalSummary } from '@/hooks/useClinicalSummary';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -99,14 +100,23 @@ const Index = () => {
             {error && <ErrorBanner message={error} onRetry={handleRetry} onDismiss={reset} />}
             
             {!summary && !error && (
-              <div className="border-2 border-dashed border-border rounded-lg p-12 text-center">
-                <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Prêt à analyser</h3>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                  Uploadez des documents médicaux et générez un premier brief clinique en 10
-                  secondes.
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="border-2 border-dashed border-border rounded-2xl p-12 text-center bg-gradient-to-br from-muted/50 to-background"
+              >
+                <div className="relative mb-6">
+                  <div className="w-24 h-24 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                    <FileText className="w-12 h-12 text-primary" />
+                  </div>
+                  <Sparkles className="absolute top-0 right-1/3 w-6 h-6 text-amber-400 animate-pulse" />
+                  <Sparkles className="absolute bottom-0 left-1/3 w-4 h-4 text-blue-400 animate-pulse" style={{ animationDelay: '500ms' }} />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Prêt à analyser ✨</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Uploadez les documents médicaux et nous générerons un brief clinique complet en quelques secondes
                 </p>
-              </div>
+              </motion.div>
             )}
 
             {summary && !showDetails && (
