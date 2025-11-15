@@ -382,8 +382,10 @@ Rules:
     // Generate audio brief with ElevenLabs
     let audioBriefBase64 = null;
     try {
-      // Create condensed audio script (max 50 words)
-      const audioScript = `Patient brief for ${patientName}. ${parsedSummary.resume_clinique?.split('.').slice(0, 2).join('.')}. ${parsedSummary.red_flags?.length > 0 ? `Alert: ${parsedSummary.red_flags[0]}` : 'No red flags.'}`;
+      // Create enhanced audio script with structured medical content
+      const audioScript = `Clinical brief for patient ${patientName}. ${parsedSummary.resume_clinique?.split('.').slice(0, 3).join('. ')}.${parsedSummary.red_flags && parsedSummary.red_flags.length > 0 ? ` Important alerts: ${parsedSummary.red_flags.slice(0, 2).join('. ')}.` : ' No critical alerts identified.'}${parsedSummary.points_de_vigilance && parsedSummary.points_de_vigilance.length > 0 ? ` Key points to monitor: ${parsedSummary.points_de_vigilance[0]}.` : ''}`;
+      
+      console.log('🎙️ Generating audio brief:', audioScript.length, 'characters');
       
       const audioResponse = await fetch(
         'https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', // Sarah voice
@@ -408,12 +410,16 @@ Rules:
       if (audioResponse.ok) {
         const audioArrayBuffer = await audioResponse.arrayBuffer();
         audioBriefBase64 = arrayBufferToBase64(audioArrayBuffer);
-        console.log('Audio brief generated successfully');
+        console.log('✅ Audio brief generated successfully:', audioScript.length, 'characters');
       } else {
-        console.error('ElevenLabs API error:', await audioResponse.text());
+        const errorStatus = audioResponse.status;
+        const errorText = await audioResponse.text();
+        console.error('❌ ElevenLabs API error:', errorStatus, errorText);
+        console.error('Script that failed:', audioScript);
       }
     } catch (audioError) {
-      console.error('Failed to generate audio brief:', audioError);
+      console.error('⚠️ Failed to generate audio brief:', audioError);
+      console.log('⚠️ Continuing without audio - summary will be saved without voice brief');
       // Don't fail the whole request if audio generation fails
     }
 
