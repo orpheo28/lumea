@@ -55,7 +55,7 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Export PDF Button */}
       <div className="flex justify-end">
         <Button
@@ -65,22 +65,24 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
           disabled={isExporting}
           className="gap-2"
         >
-          <Download className="w-4 h-4" />
-          {isExporting ? 'Export en cours...' : 'Exporter en PDF'}
+          <Download className="w-3 h-3" />
+          {isExporting ? 'Export...' : 'PDF'}
         </Button>
       </div>
 
       {/* Audio Brief */}
       {summary.audio_brief_base64 && (
-        <AudioPlayer audioBase64={summary.audio_brief_base64} />
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-2">
+          <AudioPlayer audioBase64={summary.audio_brief_base64} />
+        </div>
       )}
 
       {/* Generation Time Badge */}
       {summary.generation_time_ms && (
         <div className="text-center">
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
-            <Clock className="w-4 h-4" />
-            Brief généré en {(summary.generation_time_ms / 1000).toFixed(1)} secondes
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+            <Clock className="w-3 h-3" />
+            {(summary.generation_time_ms / 1000).toFixed(1)}s
           </span>
         </div>
       )}

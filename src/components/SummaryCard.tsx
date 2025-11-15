@@ -29,12 +29,26 @@ export const SummaryCard = ({
     ),
   };
 
+  const iconBgStyles = {
+    default: 'p-1.5 bg-primary/10 rounded-lg',
+    warning: 'p-1.5 bg-amber-100 dark:bg-amber-900/20 rounded-lg',
+    danger: 'p-1.5 bg-red-100 dark:bg-red-900/20 rounded-lg',
+  };
+
+  const iconColorStyles = {
+    default: 'text-primary',
+    warning: 'text-amber-600',
+    danger: 'text-red-600',
+  };
+
   return (
     <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className={cn(variantStyles[variant], "transition-all duration-200 hover:shadow-lg")}>
+      <Card className={cn("relative", variantStyles[variant])}>
         {variant === 'danger' && (
           <span className="absolute -top-1 -right-1 z-10">
             <span className="relative flex h-3 w-3">
@@ -43,12 +57,16 @@ export const SummaryCard = ({
             </span>
           </span>
         )}
-        <CardHeader>
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {Icon && <Icon className="w-5 h-5 text-primary" />}
-              <CardTitle className="text-lg">{title}</CardTitle>
-            </div>
+            <CardTitle className="flex items-center gap-2 text-base">
+              {Icon && (
+                <div className={iconBgStyles[variant]}>
+                  <Icon className={cn("w-4 h-4", iconColorStyles[variant])} />
+                </div>
+              )}
+              {title}
+            </CardTitle>
             {badge && (
               <Badge variant={variant === 'danger' ? 'destructive' : 'secondary'}>
                 {badge}
@@ -56,7 +74,7 @@ export const SummaryCard = ({
             )}
           </div>
         </CardHeader>
-        <CardContent>{children}</CardContent>
+        <CardContent className="pt-2">{children}</CardContent>
       </Card>
     </motion.div>
   );
