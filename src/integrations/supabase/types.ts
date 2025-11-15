@@ -31,6 +31,7 @@ export type Database = {
           raw_response: Json | null
           red_flags: Json
           resume_clinique: string | null
+          suggested_exams: Json | null
         }
         Insert: {
           a_expliquer_au_patient?: string | null
@@ -48,6 +49,7 @@ export type Database = {
           raw_response?: Json | null
           red_flags?: Json
           resume_clinique?: string | null
+          suggested_exams?: Json | null
         }
         Update: {
           a_expliquer_au_patient?: string | null
@@ -65,8 +67,47 @@ export type Database = {
           raw_response?: Json | null
           red_flags?: Json
           resume_clinique?: string | null
+          suggested_exams?: Json | null
         }
         Relationships: []
+      }
+      medical_letters: {
+        Row: {
+          content: string
+          created_at: string | null
+          edited_at: string | null
+          id: string
+          is_edited: boolean | null
+          letter_type: string
+          summary_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          letter_type: string
+          summary_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          letter_type?: string
+          summary_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_letters_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       medical_timeline: {
         Row: {
