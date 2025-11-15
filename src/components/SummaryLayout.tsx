@@ -1,4 +1,5 @@
 import { SummaryCard } from './SummaryCard';
+import { AudioPlayer } from './AudioPlayer';
 import { Button } from '@/components/ui/button';
 import {
   Stethoscope,
@@ -36,6 +37,21 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
 
   return (
     <div className="space-y-4">
+      {/* Audio Brief */}
+      {summary.audio_brief_base64 && (
+        <AudioPlayer audioBase64={summary.audio_brief_base64} />
+      )}
+
+      {/* Generation Time Badge */}
+      {summary.generation_time_ms && (
+        <div className="text-center">
+          <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+            <Clock className="w-4 h-4" />
+            Brief généré en {(summary.generation_time_ms / 1000).toFixed(1)} secondes
+          </span>
+        </div>
+      )}
+
       <SummaryCard title="Résumé clinique" icon={Stethoscope}>
         <p className="text-sm leading-relaxed">
           {summary.resume_clinique || 'Aucun résumé disponible.'}

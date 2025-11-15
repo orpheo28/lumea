@@ -11,6 +11,8 @@ export const useClinicalSummary = () => {
     setIsLoading(true);
     setError(null);
     setSummary(null);
+    
+    const startTime = performance.now();
 
     try {
       // Create FormData
@@ -36,7 +38,14 @@ export const useClinicalSummary = () => {
         throw new Error(data.error || 'Failed to generate summary');
       }
 
-      setSummary(data.summary);
+      const endTime = performance.now();
+      const generationTime = Math.round(endTime - startTime);
+      
+      // Add generation time to summary
+      setSummary({
+        ...data.summary,
+        generation_time_ms: generationTime,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue';
       setError(errorMessage);
