@@ -9,7 +9,8 @@ import { LoaderOverlay } from '@/components/LoaderOverlay';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { useClinicalSummary } from '@/hooks/useClinicalSummary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, MessageSquare } from 'lucide-react';
+import { FileText, MessageSquare, Calendar } from 'lucide-react';
+import { MedicalTimeline } from '@/components/MedicalTimeline';
 
 const Index = () => {
   const [patientName, setPatientName] = useState('');
@@ -71,10 +72,14 @@ const Index = () => {
 
             {summary && showDetails && (
               <Tabs defaultValue="summary" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="summary" className="flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Résumé
+                  </TabsTrigger>
+                  <TabsTrigger value="timeline" className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Timeline
                   </TabsTrigger>
                   <TabsTrigger value="chat" className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
@@ -84,6 +89,10 @@ const Index = () => {
                 
                 <TabsContent value="summary" className="mt-4">
                   <SummaryLayout summary={summary} />
+                </TabsContent>
+
+                <TabsContent value="timeline" className="mt-4">
+                  <MedicalTimeline summaryId={summary.id} />
                 </TabsContent>
                 
                 <TabsContent value="chat" className="mt-4">

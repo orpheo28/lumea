@@ -155,8 +155,59 @@ Tu analyses des documents patients (comptes rendus, bilans, examens, etc.).
   "comparaison_historique": "Ce qui a changé par rapport aux examens précédents si possible",
   "red_flags": ["élément potentiellement inquiétant 1", "..."],
   "note_medicale_brute": "Note clinique brute au format SOAP (SUBJECTIF, OBJECTIF, EVALUATION, PLAN)",
-  "a_expliquer_au_patient": "Formulation simple à expliquer au patient, en langage accessible"
+  "a_expliquer_au_patient": "Formulation simple à expliquer au patient, en langage accessible",
+  "timeline_events": [
+    {
+      "event_date": "2024-03-15T10:30:00Z",
+      "event_type": "examen | consultation | hospitalisation | traitement | diagnostic",
+      "description": "Description de l'événement",
+      "document_source": "nom_du_fichier.pdf"
+    }
+  ],
+  "inconsistencies": [
+    {
+      "type": "biological | treatment | missing_info | temporal",
+      "severity": "low | medium | high",
+      "description": "Description courte (1 phrase)",
+      "details": "Explication détaillée avec les valeurs/dates concernées"
+    }
+  ]
 }
+
+EXTRACTION DE LA TIMELINE :
+Pour chaque document, identifie tous les événements médicaux avec leur date :
+- Les dates d'examens (biologie, imagerie, ECG, etc.)
+- Les dates de consultation
+- Les dates d'hospitalisation
+- Les dates de changement de traitement
+- Les dates de diagnostic
+
+Trie les événements par ordre chronologique décroissant (plus récent en premier).
+
+DÉTECTION D'INCOHÉRENCES CRITIQUES :
+Analyse les documents pour détecter :
+
+1. **Incohérences biologiques** :
+   - Valeurs contradictoires entre examens
+   - Évolution anormale sans explication
+   - Résultats impossibles physiologiquement
+
+2. **Incohérences de traitement** :
+   - Médicaments contre-indiqués ensemble
+   - Dosages incohérents avec la fonction rénale/hépatique
+   - Arrêt brutal de traitement chronique sans mention
+
+3. **Informations manquantes critiques** :
+   - Résultat annoncé mais absent des documents
+   - Suivi manquant après anomalie détectée
+   - Examens complémentaires recommandés non réalisés
+
+4. **Incohérences temporelles** :
+   - Dates incohérentes
+   - Chronologie impossible
+
+N'ajoute que les incohérences RÉELLES et VÉRIFIABLES.
+Évite les faux positifs - mieux vaut rien signaler que signaler à tort.
 
 Règles :
 - NE PROPOSE PAS de diagnostic explicite.
@@ -269,7 +320,7 @@ Règles :
       // Don't fail the whole request if audio generation fails
     }
 
-    // Save to database with Gemini file URIs and audio
+    // Save to database with Gemini file URIs, audio, and inconsistencies
     const { data: savedSummary, error: dbError } = await supabase
       .from('clinical_summaries')
       .insert({
@@ -283,6 +334,7 @@ Règles :
         note_medicale_brute: parsedSummary.note_medicale_brute,
         a_expliquer_au_patient: parsedSummary.a_expliquer_au_patient,
         audio_brief_base64: audioBriefBase64,
+        inconsistencies: parsedSummary.inconsistencies || [],
         raw_response: geminiResponse,
       })
       .select()
@@ -294,6 +346,27 @@ Règles :
     }
 
     console.log('Summary saved successfully:', savedSummary.id);
+
+    // Insert timeline events if present
+    if (parsedSummary.timeline_events && parsedSummary.timeline_events.length > 0) {
+      const timelineInserts = parsedSummary.timeline_events.map((event: any) => ({
+        summary_id: savedSummary.id,
+        event_date: event.event_date,
+        event_type: event.event_type,
+        description: event.description,
+        document_source: event.document_source || 'unknown'
+      }));
+
+      const { error: timelineError } = await supabase
+        .from('medical_timeline')
+        .insert(timelineInserts);
+
+      if (timelineError) {
+        console.error('Error inserting timeline events:', timelineError);
+      } else {
+        console.log(`Inserted ${timelineInserts.length} timeline events`);
+      }
+    }
 
     return new Response(
       JSON.stringify({
