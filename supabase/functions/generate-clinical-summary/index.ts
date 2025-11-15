@@ -167,12 +167,8 @@ If imaging files are provided (X-rays, MRI, CT scans, ultrasounds...):
 2. Note any visible abnormalities (masses, opacities, fractures, lesions...)
 3. DO NOT DIAGNOSE - remain factual and descriptive
 4. Recommend radiologist interpretation if relevant
-
-Format for images:
-"On the [type] image:
-- Identified structures: [list]
-- Observations: [factual description]
-- Recommendation: Specialized reading recommended"
+5. **CRITICAL**: Include imaging observations WITHIN the JSON structure in the appropriate fields (resume_clinique, note_medicale_brute, points_de_vigilance)
+6. DO NOT output imaging analysis as separate text before the JSON
 
 From ALL provided documents, generate STRICTLY a valid JSON in this format:
 
@@ -243,7 +239,10 @@ Rules:
 - If information is not available in documents, state it clearly.
 - Respond in English.
 - JSON must be PARSABLE without error.
-- Do NOT put JSON in a markdown code block, return only raw JSON.`;
+- Do NOT put JSON in a markdown code block, return only raw JSON.
+- **CRITICAL**: Do NOT add any text, explanation, or commentary before or after the JSON object.
+- **CRITICAL**: The first character of your response MUST be '{' and the last character MUST be '}'.
+- Include all imaging observations inside the JSON fields (resume_clinique, note_medicale_brute, etc.).`;
 
     const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
     
@@ -264,6 +263,51 @@ Rules:
         topK: 40,
         topP: 0.95,
         maxOutputTokens: 8192,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            resume_clinique: { type: "string" },
+            points_de_vigilance: { 
+              type: "array",
+              items: { type: "string" }
+            },
+            comparaison_historique: { type: "string" },
+            red_flags: {
+              type: "array",
+              items: { type: "string" }
+            },
+            note_medicale_brute: { type: "string" },
+            a_expliquer_au_patient: { type: "string" },
+            timeline_events: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  event_date: { type: "string" },
+                  event_type: { type: "string" },
+                  description: { type: "string" },
+                  document_source: { type: "string" }
+                },
+                required: ["event_date", "event_type", "description", "document_source"]
+              }
+            },
+            inconsistencies: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  type: { type: "string" },
+                  severity: { type: "string" },
+                  description: { type: "string" },
+                  details: { type: "string" }
+                },
+                required: ["type", "severity", "description", "details"]
+              }
+            }
+          },
+          required: ["resume_clinique", "points_de_vigilance", "comparaison_historique", "red_flags", "note_medicale_brute", "a_expliquer_au_patient", "timeline_events", "inconsistencies"]
+        }
       }
     };
 
@@ -288,23 +332,50 @@ Rules:
 
     const generatedText = geminiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
     
+    console.log('=== GEMINI RESPONSE DEBUG ===');
+    console.log('Response status:', geminiResponse.candidates?.[0]?.finishReason);
+    console.log('Text length:', generatedText?.length);
+    console.log('First 200 chars:', generatedText?.substring(0, 200));
+    console.log('Last 200 chars:', generatedText?.substring(generatedText.length - 200));
+    
     if (!generatedText) {
       throw new Error('No text generated from Gemini API');
     }
 
-    // Parse JSON response (clean markdown if present)
+    // Parse JSON response - extract JSON from response even if surrounded by text
     let cleanedJson = generatedText.trim();
-    if (cleanedJson.startsWith('```json')) {
-      cleanedJson = cleanedJson.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    } else if (cleanedJson.startsWith('```')) {
-      cleanedJson = cleanedJson.replace(/^```\s*/, '').replace(/\s*```$/, '');
+
+    // Step 1: Remove markdown code blocks
+    if (cleanedJson.includes('```json')) {
+      const jsonMatch = cleanedJson.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        cleanedJson = jsonMatch[1].trim();
+      }
+    } else if (cleanedJson.includes('```')) {
+      const codeMatch = cleanedJson.match(/```\s*([\s\S]*?)\s*```/);
+      if (codeMatch) {
+        cleanedJson = codeMatch[1].trim();
+      }
+    }
+
+    // Step 2: Extract JSON object if there's text before/after it
+    // Find the first '{' and last '}' to extract the JSON object
+    const firstBrace = cleanedJson.indexOf('{');
+    const lastBrace = cleanedJson.lastIndexOf('}');
+
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      cleanedJson = cleanedJson.substring(firstBrace, lastBrace + 1);
+    } else {
+      console.error('No valid JSON object found in response');
+      throw new Error('No valid JSON object found in AI response');
     }
 
     let parsedSummary;
     try {
       parsedSummary = JSON.parse(cleanedJson);
     } catch (parseError) {
-      console.error('Failed to parse JSON:', cleanedJson);
+      console.error('Failed to parse JSON:', cleanedJson.substring(0, 500)); // Log first 500 chars only
+      console.error('Parse error:', parseError);
       throw new Error('Failed to parse AI response as JSON');
     }
 
@@ -312,7 +383,7 @@ Rules:
     let audioBriefBase64 = null;
     try {
       // Create condensed audio script (max 50 words)
-      const audioScript = `Brief patient ${patientName}. ${parsedSummary.resume_clinique?.split('.').slice(0, 2).join('.')}. ${parsedSummary.red_flags?.length > 0 ? `Attention : ${parsedSummary.red_flags[0]}` : 'Pas de red flag.'}`;
+      const audioScript = `Patient brief for ${patientName}. ${parsedSummary.resume_clinique?.split('.').slice(0, 2).join('.')}. ${parsedSummary.red_flags?.length > 0 ? `Alert: ${parsedSummary.red_flags[0]}` : 'No red flags.'}`;
       
       const audioResponse = await fetch(
         'https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', // Sarah voice
