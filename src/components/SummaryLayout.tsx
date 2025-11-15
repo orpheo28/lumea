@@ -10,10 +10,12 @@ import {
   MessageCircle,
   Copy,
   Check,
+  Download,
 } from 'lucide-react';
 import type { ClinicalSummary } from '@/types/clinical';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { usePdfExport } from '@/hooks/usePdfExport';
 
 interface SummaryLayoutProps {
   summary: ClinicalSummary;
@@ -22,6 +24,7 @@ interface SummaryLayoutProps {
 export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { exportToPdf, isExporting } = usePdfExport();
 
   const copyNote = () => {
     if (summary.note_medicale_brute) {
@@ -35,8 +38,38 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
     }
   };
 
+  const handleExport = async () => {
+    const result = await exportToPdf(summary);
+    if (result.success) {
+      toast({
+        title: 'PDF exporté',
+        description: 'Le brief clinique a été téléchargé avec succès',
+      });
+    } else {
+      toast({
+        title: 'Erreur',
+        description: "Impossible d'exporter le PDF",
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Export PDF Button */}
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExport}
+          disabled={isExporting}
+          className="gap-2"
+        >
+          <Download className="w-4 h-4" />
+          {isExporting ? 'Export en cours...' : 'Exporter en PDF'}
+        </Button>
+      </div>
+
       {/* Audio Brief */}
       {summary.audio_brief_base64 && (
         <AudioPlayer audioBase64={summary.audio_brief_base64} />
@@ -98,6 +131,56 @@ export const SummaryLayout = ({ summary }: SummaryLayoutProps) => {
           </p>
         )}
       </SummaryCard>
+
+      {/* Inconsistencies Section */}
+      {summary.inconsistencies && summary.inconsistencies.length > 0 && (
+        <SummaryCard 
+          title="🔍 Incohérences détectées" 
+          icon={AlertTriangle}
+          variant="warning"
+        >
+          <div className="space-y-3">
+            {summary.inconsistencies.map((inc, index) => {
+              const severityColors = {
+                low: 'bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300',
+                medium: 'bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800 text-orange-800 dark:text-orange-300',
+                high: 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'
+              };
+              
+              const severityLabels = {
+                low: 'Faible',
+                medium: 'Moyenne',
+                high: 'Élevée'
+              };
+
+              return (
+                <div 
+                  key={index}
+                  className={`border rounded-lg p-3 ${severityColors[inc.severity]}`}
+                >
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-semibold uppercase">
+                          {inc.type.replace('_', ' ')}
+                        </span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-background/50">
+                          Sévérité : {severityLabels[inc.severity]}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium">{inc.description}</p>
+                      {inc.details && (
+                        <p className="text-xs mt-1 opacity-80">{inc.details}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SummaryCard>
+      )}
 
       <SummaryCard title="Comparaison avec l'historique" icon={Clock}>
         <p className="text-sm leading-relaxed">

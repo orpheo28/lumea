@@ -1,0 +1,158 @@
+import { useState } from 'react';
+import jsPDF from 'jspdf';
+import type { ClinicalSummary } from '@/types/clinical';
+
+export const usePdfExport = () => {
+  const [isExporting, setIsExporting] = useState(false);
+
+  const exportToPdf = async (summary: ClinicalSummary) => {
+    setIsExporting(true);
+    
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      let yPosition = 20;
+
+      // Header avec logo Medora MD
+      pdf.setFontSize(20);
+      pdf.setTextColor(59, 130, 246); // primary color
+      pdf.text('Medora MD', pageWidth / 2, yPosition, { align: 'center' });
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 100, 100);
+      yPosition += 7;
+      pdf.text('Brief Clinique Automatisé', pageWidth / 2, yPosition, { align: 'center' });
+
+      // Line separator
+      yPosition += 10;
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(20, yPosition, pageWidth - 20, yPosition);
+      yPosition += 10;
+
+      // Patient info
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Patient : ${summary.patient_name}`, 20, yPosition);
+      yPosition += 7;
+      
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Généré le : ${new Date(summary.created_at).toLocaleDateString('fr-FR')}`, 20, yPosition);
+      yPosition += 10;
+
+      // Résumé clinique
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Résumé clinique', 20, yPosition);
+      yPosition += 7;
+      
+      pdf.setFontSize(10);
+      const resumeLines = pdf.splitTextToSize(summary.resume_clinique || 'N/A', pageWidth - 40);
+      pdf.text(resumeLines, 20, yPosition);
+      yPosition += resumeLines.length * 5 + 10;
+
+      // Red flags
+      if (summary.red_flags && summary.red_flags.length > 0) {
+        pdf.setFontSize(12);
+        pdf.setTextColor(220, 38, 38); // red
+        pdf.text('⚠ Red Flags', 20, yPosition);
+        yPosition += 7;
+        
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
+        summary.red_flags.forEach(flag => {
+          const flagLines = pdf.splitTextToSize(`• ${flag}`, pageWidth - 40);
+          pdf.text(flagLines, 20, yPosition);
+          yPosition += flagLines.length * 5 + 3;
+        });
+        yPosition += 5;
+      }
+
+      // Points de vigilance
+      if (summary.points_de_vigilance && summary.points_de_vigilance.length > 0) {
+        if (yPosition > pageHeight - 40) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        
+        pdf.setFontSize(12);
+        pdf.setTextColor(245, 158, 11); // orange
+        pdf.text('Points de vigilance', 20, yPosition);
+        yPosition += 7;
+        
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
+        summary.points_de_vigilance.forEach(point => {
+          const pointLines = pdf.splitTextToSize(`• ${point}`, pageWidth - 40);
+          pdf.text(pointLines, 20, yPosition);
+          yPosition += pointLines.length * 5 + 3;
+        });
+        yPosition += 5;
+      }
+
+      // Inconsistencies
+      if (summary.inconsistencies && summary.inconsistencies.length > 0) {
+        if (yPosition > pageHeight - 40) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        
+        pdf.setFontSize(12);
+        pdf.setTextColor(220, 38, 38);
+        pdf.text('Incohérences détectées', 20, yPosition);
+        yPosition += 7;
+        
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
+        summary.inconsistencies.forEach(inc => {
+          const incLines = pdf.splitTextToSize(`• [${inc.severity.toUpperCase()}] ${inc.description}`, pageWidth - 40);
+          pdf.text(incLines, 20, yPosition);
+          yPosition += incLines.length * 5 + 3;
+        });
+        yPosition += 5;
+      }
+
+      // Note SOAP
+      if (summary.note_medicale_brute) {
+        if (yPosition > pageHeight - 60) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text('Note médicale (SOAP)', 20, yPosition);
+        yPosition += 7;
+        
+        pdf.setFontSize(9);
+        const noteLines = pdf.splitTextToSize(summary.note_medicale_brute, pageWidth - 40);
+        pdf.text(noteLines, 20, yPosition);
+      }
+
+      // Footer
+      const timestamp = new Date().toLocaleString('fr-FR');
+      pdf.setFontSize(8);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text(
+        `Généré par Medora MD le ${timestamp}`,
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: 'center' }
+      );
+
+      // Save PDF
+      const fileName = `Brief_${summary.patient_name}_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      return { success: false, error };
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  return { exportToPdf, isExporting };
+};
