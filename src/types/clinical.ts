@@ -7,6 +7,7 @@ export interface ClinicalSummary {
     size: number;
     mimetype: string;
   }>;
+  gemini_file_uris?: string[];
   resume_clinique: string | null;
   points_de_vigilance: string[];
   comparaison_historique: string | null;

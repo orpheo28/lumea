@@ -3,10 +3,12 @@ import { HeroSection } from '@/components/HeroSection';
 import { PatientForm } from '@/components/PatientForm';
 import { UploadSection } from '@/components/UploadSection';
 import { SummaryLayout } from '@/components/SummaryLayout';
+import { DocumentChat } from '@/components/DocumentChat';
 import { LoaderOverlay } from '@/components/LoaderOverlay';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { useClinicalSummary } from '@/hooks/useClinicalSummary';
-import { FileText } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, MessageSquare } from 'lucide-react';
 
 const Index = () => {
   const [patientName, setPatientName] = useState('');
@@ -61,7 +63,28 @@ const Index = () => {
               </div>
             )}
 
-            {summary && <SummaryLayout summary={summary} />}
+            {summary && (
+              <Tabs defaultValue="summary" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="summary" className="flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Résumé
+                  </TabsTrigger>
+                  <TabsTrigger value="chat" className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    Chat RAG
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="summary" className="mt-4">
+                  <SummaryLayout summary={summary} />
+                </TabsContent>
+                
+                <TabsContent value="chat" className="mt-4">
+                  <DocumentChat summaryId={summary.id} patientName={summary.patient_name} />
+                </TabsContent>
+              </Tabs>
+            )}
           </div>
         </div>
       </main>

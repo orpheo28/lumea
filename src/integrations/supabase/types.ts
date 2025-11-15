@@ -20,6 +20,7 @@ export type Database = {
           comparaison_historique: string | null
           created_at: string
           files: Json
+          gemini_file_uris: Json | null
           id: string
           note_medicale_brute: string | null
           patient_name: string
@@ -33,6 +34,7 @@ export type Database = {
           comparaison_historique?: string | null
           created_at?: string
           files?: Json
+          gemini_file_uris?: Json | null
           id?: string
           note_medicale_brute?: string | null
           patient_name: string
@@ -46,6 +48,7 @@ export type Database = {
           comparaison_historique?: string | null
           created_at?: string
           files?: Json
+          gemini_file_uris?: Json | null
           id?: string
           note_medicale_brute?: string | null
           patient_name?: string
