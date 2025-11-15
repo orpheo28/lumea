@@ -31,7 +31,7 @@ export const QuickSummaryView = ({ summary, onShowDetails }: QuickSummaryViewPro
         </div>
         <p className="text-sm leading-relaxed text-muted-foreground">{summary.resume_clinique?.slice(0, 300) || 'No summary available.'}{summary.resume_clinique && summary.resume_clinique.length > 300 && '...'}</p>
       </motion.div>
-      {summary.audio_brief_base64 && (
+      {summary.audio_brief_base64 ? (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }} className={cn("relative overflow-hidden bg-gradient-to-br from-primary/10 via-blue-500/10 to-purple-500/10 dark:from-primary/5 dark:via-blue-500/5 dark:to-purple-500/5 border-2 border-primary/30 rounded-xl p-4 shadow-lg shadow-primary/20")}>
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-50 blur-xl" />
           <div className="relative z-10">
@@ -40,6 +40,18 @@ export const QuickSummaryView = ({ summary, onShowDetails }: QuickSummaryViewPro
               <div><h3 className="font-bold text-sm">Audio Brief (20s)</h3><p className="text-xs text-muted-foreground">Listen before consultation</p></div>
             </div>
             <AudioPlayer audioBase64={summary.audio_brief_base64} />
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          transition={{ delay: 0.4 }}
+          className="bg-muted/50 border border-dashed border-muted-foreground/30 rounded-xl p-4 text-center"
+        >
+          <div className="flex items-center justify-center gap-2 text-muted-foreground">
+            <Volume2 className="w-4 h-4" />
+            <p className="text-sm">Audio brief unavailable - voice synthesis in progress</p>
           </div>
         </motion.div>
       )}
