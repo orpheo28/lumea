@@ -159,12 +159,25 @@ serve(async (req) => {
 
     // Generate clinical summary with Gemini API using File URIs
     const prompt = `Tu es un assistant pour médecins généralistes.
-Tu analyses des documents patients (comptes rendus, bilans, examens, etc.).
+Tu analyses des documents patients (comptes rendus, bilans, examens, imagerie médicale, etc.).
+
+**ANALYSE D'IMAGES MÉDICALES** :
+Si des fichiers d'imagerie sont fournis (radiographies, IRM, scanners, échographies...) :
+1. Décris objectivement les structures anatomiques visibles
+2. Note toute anomalie visible (masses, opacités, fractures, lésions...)
+3. NE POSE PAS DE DIAGNOSTIC - reste factuel et descriptif
+4. Recommande une interprétation par radiologue si pertinent
+
+Format pour les images :
+"Sur l'image [type] :
+- Structures identifiées : [liste]
+- Observations : [description factuelle]
+- Recommandation : Lecture spécialisée recommandée"
 
 À partir de TOUS les documents fournis, génère STRICTEMENT un JSON valide de la forme :
 
 {
-  "resume_clinique": "Résumé global en quelques phrases, factuel",
+  "resume_clinique": "Résumé global en quelques phrases, factuel (inclut les observations d'imagerie si présentes)",
   "points_de_vigilance": ["point 1", "point 2", "..."],
   "comparaison_historique": "Ce qui a changé par rapport aux examens précédents si possible",
   "red_flags": ["élément potentiellement inquiétant 1", "..."],
@@ -173,7 +186,7 @@ Tu analyses des documents patients (comptes rendus, bilans, examens, etc.).
   "timeline_events": [
     {
       "event_date": "2024-03-15T10:30:00Z",
-      "event_type": "examen | consultation | hospitalisation | traitement | diagnostic",
+      "event_type": "examen | consultation | hospitalisation | traitement | diagnostic | imagerie",
       "description": "Description de l'événement",
       "document_source": "nom_du_fichier.pdf"
     }

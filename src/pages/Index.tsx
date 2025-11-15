@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { HeroSection } from '@/components/HeroSection';
 import { PatientForm } from '@/components/PatientForm';
 import { UploadSection } from '@/components/UploadSection';
@@ -9,14 +10,45 @@ import { LoaderOverlay } from '@/components/LoaderOverlay';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { useClinicalSummary } from '@/hooks/useClinicalSummary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, MessageSquare, Calendar } from 'lucide-react';
+import { FileText, MessageSquare, Calendar, Mail, Users } from 'lucide-react';
 import { MedicalTimeline } from '@/components/MedicalTimeline';
+import { MedicalLetters } from '@/components/MedicalLetters';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [patientName, setPatientName] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const { isLoading, error, summary, generateSummary, reset } = useClinicalSummary();
+
+  useEffect(() => {
+    const summaryId = searchParams.get('summaryId');
+    if (summaryId) {
+      loadSummary(summaryId);
+    }
+  }, [searchParams]);
+
+  const loadSummary = async (summaryId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('clinical_summaries')
+        .select('*')
+        .eq('id', summaryId)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        // Load the summary into the state via the hook
+        // For now, we'll just trigger a navigation refresh
+        setShowDetails(true);
+      }
+    } catch (err) {
+      console.error('Error loading summary:', err);
+    }
+  };
 
   const handleGenerate = async () => {
     await generateSummary(patientName, files);
@@ -36,6 +68,17 @@ const Index = () => {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left column - Input */}
           <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold">Nouveau brief</h2>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/patients')}
+                className="flex items-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Vue Multi-patients
+              </Button>
+            </div>
             <PatientForm
               patientName={patientName}
               onPatientNameChange={setPatientName}
@@ -72,7 +115,7 @@ const Index = () => {
 
             {summary && showDetails && (
               <Tabs defaultValue="summary" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="summary" className="flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Résumé
@@ -80,6 +123,10 @@ const Index = () => {
                   <TabsTrigger value="timeline" className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     Timeline
+                  </TabsTrigger>
+                  <TabsTrigger value="letters" className="flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Courriers
                   </TabsTrigger>
                   <TabsTrigger value="chat" className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
@@ -93,6 +140,10 @@ const Index = () => {
 
                 <TabsContent value="timeline" className="mt-4">
                   <MedicalTimeline summaryId={summary.id} />
+                </TabsContent>
+
+                <TabsContent value="letters" className="mt-4">
+                  <MedicalLetters summaryId={summary.id} />
                 </TabsContent>
                 
                 <TabsContent value="chat" className="mt-4">
