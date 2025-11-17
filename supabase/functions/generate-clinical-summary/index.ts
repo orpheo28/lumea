@@ -244,7 +244,8 @@ Rules:
 - **CRITICAL**: The first character of your response MUST be '{' and the last character MUST be '}'.
 - Include all imaging observations inside the JSON fields (resume_clinique, note_medicale_brute, etc.).`;
 
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+    // Using stable gemini-1.5-flash instead of 2.5-flash to avoid 503 errors
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
     
     const requestBody = {
       contents: [{
@@ -313,14 +314,15 @@ Rules:
 
     console.log('Request body for Gemini:', JSON.stringify(requestBody, null, 2));
 
-    // Retry logic for 503 errors (API overload)
-    const maxRetries = 3;
-    const baseDelay = 2000; // 2 seconds
+    // Retry logic with longer delays for API stability
+    const maxRetries = 4;
+    const baseDelay = 3000; // 3 seconds base
     let response;
-    let lastError;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
+        console.log(`Gemini API call attempt ${attempt + 1}/${maxRetries}...`);
+        
         response = await fetch(`${apiUrl}?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
@@ -330,33 +332,40 @@ Rules:
         });
 
         if (response.ok) {
-          break; // Success, exit retry loop
+          console.log('✅ Gemini API call successful');
+          break;
         }
 
         const errorText = await response.text();
-        console.error(`Gemini API error (attempt ${attempt + 1}/${maxRetries}):`, response.status, errorText);
+        console.error(`❌ Gemini API error (attempt ${attempt + 1}):`, response.status, errorText);
 
-        // If it's a 503 (service unavailable), retry with exponential backoff
-        if (response.status === 503 && attempt < maxRetries - 1) {
-          const delay = baseDelay * Math.pow(2, attempt); // Exponential backoff: 2s, 4s, 8s
-          console.log(`Retrying in ${delay}ms...`);
+        // Retry on 503 or 429 errors
+        if ((response.status === 503 || response.status === 429) && attempt < maxRetries - 1) {
+          const delay = baseDelay * Math.pow(2, attempt); // 3s, 6s, 12s, 24s
+          console.log(`⏳ Retrying in ${delay / 1000} seconds...`);
           await new Promise(resolve => setTimeout(resolve, delay));
-          lastError = errorText;
           continue;
         }
 
-        // For other errors or last attempt, throw
-        throw new Error(`Gemini API error (${response.status}): ${errorText}`);
-      } catch (error) {
-        if (attempt === maxRetries - 1) {
-          throw error;
+        // Last attempt or non-retryable error
+        throw new Error(`Gemini API returned ${response.status}: ${errorText}`);
+        
+      } catch (fetchError) {
+        console.error(`Network error on attempt ${attempt + 1}:`, fetchError);
+        
+        if (attempt < maxRetries - 1) {
+          const delay = baseDelay * Math.pow(2, attempt);
+          console.log(`⏳ Retrying after network error in ${delay / 1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
         }
-        lastError = error;
+        
+        throw fetchError;
       }
     }
 
     if (!response || !response.ok) {
-      throw new Error(`Failed to generate summary after ${maxRetries} attempts. Gemini API may be overloaded. Please try again later.`);
+      throw new Error('Failed to generate summary after multiple retries. Please try again in a few minutes.');
     }
 
     const geminiResponse = await response.json();
