@@ -35,7 +35,18 @@ export const useClinicalSummary = () => {
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      // Display user-friendly message for Gemini overload
+      if (errorData.error?.includes('overloaded') || errorData.error?.includes('503')) {
+        throw new Error('Le service d\'IA est temporairement surchargé. Veuillez réessayer dans quelques secondes.');
+      }
+      
       throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
     }
 

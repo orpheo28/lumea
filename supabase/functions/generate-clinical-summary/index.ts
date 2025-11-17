@@ -313,18 +313,50 @@ Rules:
 
     console.log('Request body for Gemini:', JSON.stringify(requestBody, null, 2));
 
-    const response = await fetch(`${apiUrl}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody)
-    });
+    // Retry logic for 503 errors (API overload)
+    const maxRetries = 3;
+    const baseDelay = 2000; // 2 seconds
+    let response;
+    let lastError;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API error:', response.status, errorText);
-      throw new Error('Failed to generate summary from Gemini API');
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        response = await fetch(`${apiUrl}?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (response.ok) {
+          break; // Success, exit retry loop
+        }
+
+        const errorText = await response.text();
+        console.error(`Gemini API error (attempt ${attempt + 1}/${maxRetries}):`, response.status, errorText);
+
+        // If it's a 503 (service unavailable), retry with exponential backoff
+        if (response.status === 503 && attempt < maxRetries - 1) {
+          const delay = baseDelay * Math.pow(2, attempt); // Exponential backoff: 2s, 4s, 8s
+          console.log(`Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          lastError = errorText;
+          continue;
+        }
+
+        // For other errors or last attempt, throw
+        throw new Error(`Gemini API error (${response.status}): ${errorText}`);
+      } catch (error) {
+        if (attempt === maxRetries - 1) {
+          throw error;
+        }
+        lastError = error;
+      }
+    }
+
+    if (!response || !response.ok) {
+      throw new Error(`Failed to generate summary after ${maxRetries} attempts. Gemini API may be overloaded. Please try again later.`);
     }
 
     const geminiResponse = await response.json();
